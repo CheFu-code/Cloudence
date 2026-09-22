@@ -37,7 +37,7 @@ export default async function HomePage() {
       {/* Main Content Sections */}
       <main>
         {/* 1. Hero with Value Proposition & Quick Proof */}
-        <HeroSection />
+        <HeroSection user={currentUser} />
 
         {/* 2. Live Interactive Workspace Sandbox */}
         <InteractiveWorkspaceDemo />
