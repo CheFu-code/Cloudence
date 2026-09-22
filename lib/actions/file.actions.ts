@@ -150,6 +150,30 @@ export async function getTotalSpaceUsed() {
   }>("/cloudence/files/usage");
 }
 
+/**
+ * Combined dashboard fetch — replaces two separate round-trips to `getFiles` + `getTotalSpaceUsed`.
+ * One HTTP request, one network RTT, same data.
+ */
+export async function getDashboardData() {
+  const result = await request<{
+    recentFiles: Record<string, unknown>[];
+    quota: {
+      image: { size: number; latestDate: string };
+      document: { size: number; latestDate: string };
+      video: { size: number; latestDate: string };
+      audio: { size: number; latestDate: string };
+      other: { size: number; latestDate: string };
+      used: number;
+      all: number;
+    };
+  }>("/cloudence/files/dashboard");
+
+  return {
+    recentFiles: result.recentFiles.map(normalizeFile),
+    quota: result.quota,
+  };
+}
+
 export async function renameFile({ fileId, name, extension, path }: RenameFileProps) {
   const result = await safeRequest<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
     body: JSON.stringify({ name: `${name}.${extension}` }),

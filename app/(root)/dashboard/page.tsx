@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { getFiles, getTotalSpaceUsed } from "@/lib/actions/file.actions";
+import { getDashboardData } from "@/lib/actions/file.actions";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import { Chart } from "@/components/Chart";
 import { FormattedDateTime } from "@/components/FormattedDateTime";
@@ -14,16 +14,14 @@ const Dashboard = async () => {
   const user = await getCurrentUser();
   if (!user) redirect("/sign-in");
 
-  const [files, totalSpace] = await Promise.all([
-    getFiles({ types: [], limit: 10 }),
-    getTotalSpaceUsed(),
-  ]);
-  const usageSummary = getUsageSummary(totalSpace);
+  // Single round-trip to the combined /dashboard endpoint instead of two parallel fetches.
+  const { recentFiles, quota } = await getDashboardData();
+  const usageSummary = getUsageSummary(quota);
 
   return (
     <div className="dashboard-container">
       <section>
-        <Chart used={totalSpace.used} />
+        <Chart used={quota.used} />
         <ul className="dashboard-summary-list">
           {usageSummary.map((summary) => (
             <Link href={summary.url} key={summary.title} className="dashboard-summary-card">
@@ -43,9 +41,9 @@ const Dashboard = async () => {
 
       <section className="dashboard-recent-files">
         <h2 className="h3 xl:h2 text-light-100">Recent files uploaded</h2>
-        {files.documents.length > 0 ? (
+        {recentFiles.length > 0 ? (
           <ul className="mt-5 flex flex-col gap-5">
-            {files.documents.map((file: CloudenceFile) => (
+            {recentFiles.map((file: CloudenceFile) => (
               <Link href={file.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3" key={file.$id}>
                 <Thumbnail type={file.type} extension={file.extension} url={file.url} />
                 <div className="recent-file-details">

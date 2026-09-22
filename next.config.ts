@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "100MB",
+      bodySizeLimit: "5MB", // Uploads are now multipart; server actions only handle small JSON payloads
     },
   },
   images: {
