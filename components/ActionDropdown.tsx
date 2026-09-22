@@ -17,10 +17,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useState } from "react";
 import Image from "next/image";
-import { Models } from "node-appwrite";
 import { actionsDropdownItems } from "@/constants";
 import Link from "next/link";
-import { constructDownloadUrl } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +29,7 @@ import {
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
 
-const ActionDropdown = ({ file }: { file: Models.Document }) => {
+const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [action, setAction] = useState<ActionType | null>(null);
@@ -52,19 +50,19 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
   const handleAction = async () => {
     if (!action) return;
     setIsLoading(true);
-    let success = false;
+    let result: unknown;
 
     const actions = {
       rename: () =>
         renameFile({ fileId: file.$id, name, extension: file.extension, path }),
       share: () => updateFileUsers({ fileId: file.$id, emails, path }),
       delete: () =>
-        deleteFile({ fileId: file.$id, bucketFileId: file.bucketFileId, path }),
+        deleteFile({ fileId: file.$id, path }),
     };
 
-    success = await actions[action.value as keyof typeof actions]();
+    result = await actions[action.value as keyof typeof actions]();
 
-    if (success) closeAllModals();
+    if (result) closeAllModals();
 
     setIsLoading(false);
   };
@@ -172,7 +170,7 @@ const ActionDropdown = ({ file }: { file: Models.Document }) => {
             >
               {actionItem.value === "download" ? (
                 <Link
-                  href={constructDownloadUrl(file.bucketFileId)}
+                  href={file.url}
                   download={file.name}
                   className="flex items-center gap-2"
                 >

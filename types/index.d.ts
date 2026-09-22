@@ -38,7 +38,6 @@ declare interface UpdateFileUsersProps {
 }
 declare interface DeleteFileProps {
   fileId: string;
-  bucketFileId: string;
   path: string;
 }
 
@@ -69,8 +68,22 @@ declare interface ThumbnailProps {
   imageClassName?: string;
 }
 
+declare interface CloudenceFile {
+  $id: string;
+  $createdAt: string;
+  $updatedAt: string;
+  name: string;
+  type: FileType;
+  extension: string;
+  url: string;
+  size: number;
+  owner: { id: string; fullName: string; email: string };
+  users: string[];
+  publicId: string;
+}
+
 declare interface ShareInputProps {
-  file: Models.Document;
+  file: CloudenceFile;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemove: (email: string) => void;
 }

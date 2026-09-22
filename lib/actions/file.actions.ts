@@ -1,236 +1,128 @@
 "use server";
 
-import { createAdminClient, createSessionClient } from "@/lib/appwrite";
-import { InputFile } from "node-appwrite/file";
-import { appwriteConfig } from "@/lib/appwrite/config";
-import { ID, Models, Query } from "node-appwrite";
-import { constructFileUrl, getFileType, parseStringify } from "@/lib/utils";
+import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
-import { getCurrentUser } from "@/lib/actions/user.actions";
 
-const handleError = (error: unknown, message: string) => {
-  console.log(error, message);
-  throw error;
-};
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.chefu.co.za";
+const APP_ID = "cloudence";
 
-export const uploadFile = async ({
-  file,
-  ownerId,
-  accountId,
-  path,
-}: UploadFileProps) => {
-  const { storage, databases } = await createAdminClient();
+function apiUrl(path: string) {
+  return `${API_BASE_URL.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+}
 
-  try {
-    const inputFile = InputFile.fromBuffer(file, file.name);
+async function sessionHeaders() {
+  const cookieStore = await cookies();
+  const sessionCookies = cookieStore
+    .getAll()
+    .filter((cookie) => cookie.name === "__session" || cookie.name === "__session_meta")
+    .map((cookie) => `${cookie.name}=${cookie.value}`)
+    .join("; ");
 
-    const bucketFile = await storage.createFile(
-      appwriteConfig.bucketId,
-      ID.unique(),
-      inputFile,
-    );
+  return { Cookie: sessionCookies, "x-chefu-app": APP_ID };
+}
 
-    const fileDocument = {
-      type: getFileType(bucketFile.name).type,
-      name: bucketFile.name,
-      url: constructFileUrl(bucketFile.$id),
-      extension: getFileType(bucketFile.name).extension,
-      size: bucketFile.sizeOriginal,
-      owner: ownerId,
-      accountId,
-      users: [],
-      bucketFileId: bucketFile.$id,
-    };
+async function request<T>(path: string, init: RequestInit = {}) {
+  const response = await fetch(apiUrl(path), {
+    ...init,
+    cache: "no-store",
+    headers: {
+      ...(await sessionHeaders()),
+      "Content-Type": "application/json",
+      ...(init.headers || {}),
+    },
+  });
+  const data = (await response.json().catch(() => null)) as
+    | (T & { message?: string; error?: string })
+    | null;
 
-    const newFile = await databases
-      .createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.filesCollectionId,
-        ID.unique(),
-        fileDocument,
-      )
-      .catch(async (error: unknown) => {
-        await storage.deleteFile(appwriteConfig.bucketId, bucketFile.$id);
-        handleError(error, "Failed to create file document");
-      });
-
-    revalidatePath(path);
-    return parseStringify(newFile);
-  } catch (error) {
-    handleError(error, "Failed to upload file");
-  }
-};
-
-const createQueries = (
-  currentUser: Pick<Models.Document, "$id" | "email">,
-  types: string[],
-  searchText: string,
-  sort: string,
-  limit?: number,
-) => {
-  const queries = [
-    Query.or([
-      Query.equal("owner", [currentUser.$id]),
-      Query.contains("users", [currentUser.email]),
-    ]),
-  ];
-
-  if (types.length > 0) queries.push(Query.equal("type", types));
-  if (searchText) queries.push(Query.contains("name", searchText));
-  if (limit) queries.push(Query.limit(limit));
-
-  if (sort) {
-    const [sortBy, orderBy] = sort.split("-");
-
-    queries.push(
-      orderBy === "asc" ? Query.orderAsc(sortBy) : Query.orderDesc(sortBy),
-    );
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error || "Cloudence file request failed.");
   }
 
-  return queries;
-};
+  return data as T;
+}
 
-export const getFiles = async ({
+function normalizeFile(file: Record<string, unknown>): CloudenceFile {
+  return {
+    ...(file as unknown as CloudenceFile),
+    $id: String(file.id),
+    $createdAt: String(file.createdAt),
+    $updatedAt: String(file.updatedAt),
+  };
+}
+
+export async function uploadFile({ file, path }: UploadFileProps) {
+  const uploaded = await request<Record<string, unknown>>("/cloudence/files", {
+    body: JSON.stringify({
+      name: file.name,
+      contentType: file.type,
+      dataBase64: Buffer.from(await file.arrayBuffer()).toString("base64"),
+    }),
+    method: "POST",
+  });
+
+  revalidatePath(path);
+  return normalizeFile(uploaded);
+}
+
+export async function getFiles({
   types = [],
   searchText = "",
-  sort = "$createdAt-desc",
+  sort = "",
   limit,
-}: GetFilesProps) => {
-  const { databases } = await createAdminClient();
+}: GetFilesProps) {
+  const params = new URLSearchParams();
+  if (types.length === 1) params.set("type", types[0]);
+  if (searchText) params.set("search", searchText);
+  if (limit) params.set("limit", String(limit));
+  if (sort) params.set("sort", sort);
 
-  try {
-    const currentUser = await getCurrentUser();
+  const result = await request<{
+    total: number;
+    documents: Record<string, unknown>[];
+  }>(`/cloudence/files?${params.toString()}`);
 
-    if (!currentUser) throw new Error("User not found");
+  return {
+    total: result.total,
+    documents: result.documents.map(normalizeFile),
+  };
+}
 
-    const queries = createQueries(currentUser, types, searchText, sort, limit);
+export async function renameFile({ fileId, name, extension, path }: RenameFileProps) {
+  const updated = await request<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
+    body: JSON.stringify({ name: `${name}.${extension}` }),
+    method: "PATCH",
+  });
 
-    const files = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.filesCollectionId,
-      queries,
-    );
+  revalidatePath(path);
+  return normalizeFile(updated);
+}
 
-    console.log({ files });
-    return parseStringify(files);
-  } catch (error) {
-    handleError(error, "Failed to get files");
-  }
-};
+export async function updateFileUsers({ fileId, emails, path }: UpdateFileUsersProps) {
+  const updated = await request<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
+    body: JSON.stringify({ users: emails }),
+    method: "PATCH",
+  });
 
-export const renameFile = async ({
-  fileId,
-  name,
-  extension,
-  path,
-}: RenameFileProps) => {
-  const { databases } = await createAdminClient();
+  revalidatePath(path);
+  return normalizeFile(updated);
+}
 
-  try {
-    const newName = `${name}.${extension}`;
-    const updatedFile = await databases.updateDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.filesCollectionId,
-      fileId,
-      {
-        name: newName,
-      },
-    );
+export async function deleteFile({ fileId, path }: DeleteFileProps) {
+  await request(`/cloudence/files/${fileId}`, { method: "DELETE" });
+  revalidatePath(path);
+  return { status: "success" };
+}
 
-    revalidatePath(path);
-    return parseStringify(updatedFile);
-  } catch (error) {
-    handleError(error, "Failed to rename file");
-  }
-};
-
-export const updateFileUsers = async ({
-  fileId,
-  emails,
-  path,
-}: UpdateFileUsersProps) => {
-  const { databases } = await createAdminClient();
-
-  try {
-    const updatedFile = await databases.updateDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.filesCollectionId,
-      fileId,
-      {
-        users: emails,
-      },
-    );
-
-    revalidatePath(path);
-    return parseStringify(updatedFile);
-  } catch (error) {
-    handleError(error, "Failed to rename file");
-  }
-};
-
-export const deleteFile = async ({
-  fileId,
-  bucketFileId,
-  path,
-}: DeleteFileProps) => {
-  const { databases, storage } = await createAdminClient();
-
-  try {
-    const deletedFile = await databases.deleteDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.filesCollectionId,
-      fileId,
-    );
-
-    if (deletedFile) {
-      await storage.deleteFile(appwriteConfig.bucketId, bucketFileId);
-    }
-
-    revalidatePath(path);
-    return parseStringify({ status: "success" });
-  } catch (error) {
-    handleError(error, "Failed to rename file");
-  }
-};
-
-// ============================== TOTAL FILE SPACE USED
 export async function getTotalSpaceUsed() {
-  try {
-    const { databases } = await createSessionClient();
-    const currentUser = await getCurrentUser();
-    if (!currentUser) throw new Error("User is not authenticated.");
-
-    const files = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.filesCollectionId,
-      [Query.equal("owner", [currentUser.$id])],
-    );
-
-    const totalSpace = {
-      image: { size: 0, latestDate: "" },
-      document: { size: 0, latestDate: "" },
-      video: { size: 0, latestDate: "" },
-      audio: { size: 0, latestDate: "" },
-      other: { size: 0, latestDate: "" },
-      used: 0,
-      all: 2 * 1024 * 1024 * 1024 /* 2GB available bucket storage */,
-    };
-
-    files.documents.forEach((file) => {
-      const fileType = file.type as FileType;
-      totalSpace[fileType].size += file.size;
-      totalSpace.used += file.size;
-
-      if (
-        !totalSpace[fileType].latestDate ||
-        new Date(file.$updatedAt) > new Date(totalSpace[fileType].latestDate)
-      ) {
-        totalSpace[fileType].latestDate = file.$updatedAt;
-      }
-    });
-
-    return parseStringify(totalSpace);
-  } catch (error) {
-    handleError(error, "Error calculating total space used:, ");
-  }
+  return request<{
+    image: { size: number; latestDate: string };
+    document: { size: number; latestDate: string };
+    video: { size: number; latestDate: string };
+    audio: { size: number; latestDate: string };
+    other: { size: number; latestDate: string };
+    used: number;
+    all: number;
+  }>("/cloudence/files/usage");
 }
