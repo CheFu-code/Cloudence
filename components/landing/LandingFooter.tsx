@@ -126,7 +126,7 @@ export function LandingFooter() {
               Terms
             </Link>
             <a href="https://www.chefu.co.za" className="hover:text-slate-300">
-              chefu.co.za
+              www.chefu.co.za
             </a>
           </div>
         </div>

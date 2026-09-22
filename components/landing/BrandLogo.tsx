@@ -36,7 +36,7 @@ export function BrandLogo({ className = "", showBadge = false }: BrandLogoProps)
 
       <div className="flex flex-col">
         <div className="flex items-center gap-1.5">
-          <span className="font-semibold text-slate-900 text-lg tracking-tight font-poppins group-hover:text-teal-700 transition-colors">
+          <span className="font-semibold text-current text-lg tracking-tight font-poppins transition-colors">
             Cloudence
           </span>
           {showBadge && (
