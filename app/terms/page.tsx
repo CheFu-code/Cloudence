@@ -25,7 +25,7 @@ export default function TermsPage() {
           <h2>Availability</h2>
           <p>We work to keep Cloudence reliable, but the service may change or become temporarily unavailable for maintenance, security, or circumstances outside our control. Keep separate copies of important content.</p>
           <h2>Contact</h2>
-          <p>Questions about these terms can be directed to CHEFU TECHNOLOGIES through <a href="https://www.chefu.co.za">www.chefu.co.za</a>.</p>
+          <p>Questions about these terms can be directed to CHEFU TECHNOLOGIES through <a href="https://www.chefu.co.za?utm_source=cloudence&utm_medium=referral">www.chefu.co.za</a>.</p>
         </div>
       </div>
     </main>

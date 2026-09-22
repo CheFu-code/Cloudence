@@ -1,26 +1,21 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
 import {
-  Search,
-  Upload,
-  MoreVertical,
-  LogOut,
-  Share2,
   Download,
-  Trash2,
   Edit2,
-  Info,
-  Check,
-  X,
   FileText,
-  ImageIcon,
   Film,
   FolderArchive,
-  Grid,
-  ExternalLink,
+  ImageIcon,
+  Info,
+  MoreVertical,
+  Share2,
+  Trash2,
+  Upload,
+  X
 } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
 
 interface MockFile {
   id: string;

@@ -75,7 +75,7 @@ export function LandingFooter() {
               </li>
               <li>
                 <a
-                  href="https://www.chefu.co.za"
+                  href="https://www.chefu.co.za?utm_source=cloudence&utm_medium=referral"
                   target="_blank"
                   rel="noreferrer"
                   className="hover:text-white transition-colors inline-flex items-center gap-1"
@@ -125,7 +125,7 @@ export function LandingFooter() {
             <Link href="/terms" className="hover:text-slate-300">
               Terms
             </Link>
-            <a href="https://www.chefu.co.za" className="hover:text-slate-300">
+            <a href="https://www.chefu.co.za?utm_source=cloudence&utm_medium=referral" className="hover:text-slate-300">
               www.chefu.co.za
             </a>
           </div>

@@ -25,7 +25,7 @@ export default function PrivacyPage() {
           <h2>Files and account control</h2>
           <p>You control the files you upload and can use the available file actions to rename, share, download, or delete them. Access to Cloudence is tied to your centralized CHEFU account.</p>
           <h2>Contact</h2>
-          <p>For privacy questions or requests, contact CHEFU TECHNOLOGIES through <a href="https://www.chefu.co.za">www.chefu.co.za</a>.</p>
+          <p>For privacy questions or requests, contact CHEFU TECHNOLOGIES through <a href="https://www.chefu.co.za?utm_source=cloudence&utm_medium=referral">www.chefu.co.za</a>.</p>
         </div>
       </div>
     </main>
