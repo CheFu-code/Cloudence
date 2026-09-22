@@ -66,7 +66,7 @@ function normalizeFile(file: Record<string, unknown>): CloudenceFile {
 }
 
 export async function uploadFile({ file, path }: UploadFileProps) {
-  const uploaded = await request<Record<string, unknown>>("/cloudence/files", {
+  const result = await safeRequest<Record<string, unknown>>("/cloudence/files", {
     body: JSON.stringify({
       name: file.name,
       contentType: file.type,
@@ -75,8 +75,9 @@ export async function uploadFile({ file, path }: UploadFileProps) {
     method: "POST",
   });
 
+  if ("error" in result) return result;
   revalidatePath(path);
-  return normalizeFile(uploaded);
+  return normalizeFile(result);
 }
 
 export async function getFiles({

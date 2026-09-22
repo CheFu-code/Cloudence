@@ -12,6 +12,16 @@ import { useToast } from "@/hooks/use-toast";
 import { uploadFile } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 
+const BLOCKED_EXTENSIONS = new Set([
+  "exe", "bat", "cmd", "sh", "bash", "zsh", "ps1", "psm1", "psd1",
+  "msi", "msp", "scr", "pif", "com", "hta", "cpl", "vbs", "vbe", "wsf", "wsh",
+  "php", "php3", "php4", "php5", "phtml", "phar",
+  "py", "pyc", "pyo", "pyw", "rb", "pl", "cgi",
+  "jar", "war", "ear",
+  "dll", "so", "dylib", "sys", "drv",
+  "js", "mjs", "cjs", "ts",
+]);
+
 interface Props {
   ownerId: string;
   accountId: string;
@@ -33,6 +43,17 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
       try {
         await Promise.all(
           acceptedFiles.map(async (file) => {
+            const ext = file.name.includes(".") ? file.name.split(".").pop()!.toLowerCase() : "";
+            if (BLOCKED_EXTENSIONS.has(ext)) {
+              setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+              toast({
+                title: "Upload blocked",
+                description: `.${ext} files are not permitted for security reasons (executable/script files are blocked).`,
+                className: "error-toast",
+              });
+              return;
+            }
+
             if (file.size > MAX_FILE_SIZE) {
               setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
               toast({
@@ -44,7 +65,17 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
             }
 
             try {
-              await uploadFile({ file, ownerId, accountId, path });
+              const res = await uploadFile({ file, ownerId, accountId, path });
+              if (res && "error" in res && res.error) {
+                setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+                toast({
+                  title: "Upload failed",
+                  description: String(res.error),
+                  className: "error-toast",
+                });
+                return;
+              }
+
               setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
               toast({ title: "Upload complete", description: `${file.name} was uploaded.` });
             } catch (error) {

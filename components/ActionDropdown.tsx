@@ -47,7 +47,7 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
     setIsDropdownOpen(false);
     setAction(null);
     setName(file.name);
-    //   setEmails([]);
+    setEmails([]);
   };
 
   const handleAction = async () => {
@@ -185,7 +185,13 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   };
 
   return (
-    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+    <Dialog
+      open={isModalOpen}
+      onOpenChange={(open) => {
+        setIsModalOpen(open);
+        if (!open) closeAllModals();
+      }}
+    >
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger disabled={isLoading} className="shad-no-focus">
           <Image
@@ -206,6 +212,9 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
               className="shad-dropdown-item"
               onClick={() => {
                 setAction(actionItem);
+                if (actionItem.value === "share") {
+                  setEmails([]);
+                }
 
                 if (
                   ["rename", "share", "delete", "details"].includes(
