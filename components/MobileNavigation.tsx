@@ -38,6 +38,7 @@ const MobileNavigation = ({
 
   return (
     <header className="mobile-header">
+      <Link href="/dashboard">
       <Image
         src="/assets/icons/logo-full-brand.svg"
         alt="logo"
@@ -45,6 +46,7 @@ const MobileNavigation = ({
         height={52}
         className="h-auto"
       />
+      </Link>
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger>

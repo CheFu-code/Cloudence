@@ -5,7 +5,7 @@ export default function SignIn() {
 	redirect(
 		accountAppUrl("/login", {
 			app: "cloudence",
-			returnTo: "https://cloudence.chefu.co.za/",
+			returnTo: "https://cloudence.chefu.co.za/dashboard",
 		}),
 	);
 }

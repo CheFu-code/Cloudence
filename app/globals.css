@@ -90,6 +90,70 @@
   }
 }
 
+.public-page {
+  min-height: 100vh;
+  overflow: hidden;
+  background: #f6f8f8;
+  color: #17383b;
+}
+
+.public-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+.public-brand img { width: 142px; height: auto; }
+.public-nav-actions, .public-hero-actions, .public-footer div { display: flex; align-items: center; gap: 20px; }
+.public-nav-link, .public-footer a { color: #527477; font-size: 13px; transition: color .2s ease; }
+.public-nav-link:hover, .public-footer a:hover, .public-text-link:hover { color: #008080; }
+.public-button { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; border-radius: 999px; padding: 0 22px; font-size: 13px; font-weight: 600; transition: transform .2s ease, background .2s ease; }
+.public-button:hover { transform: translateY(-1px); }
+.public-button-primary { background: #008080; color: white; box-shadow: 0 10px 24px rgba(0, 128, 128, .16); }
+.public-button-primary:hover { background: #006f70; }
+.public-button-quiet { background: #e1eeee; color: #006666; }
+.public-eyebrow { color: #008080; font-size: 11px; font-weight: 700; letter-spacing: .16em; }
+.public-hero { display: grid; grid-template-columns: 1.05fr .95fr; align-items: center; max-width: 1180px; min-height: 620px; gap: 72px; margin: 0 auto; padding: 72px 32px 96px; }
+.public-hero-copy h1 { max-width: 650px; margin: 14px 0 22px; color: #17383b; font-size: clamp(44px, 6vw, 76px); line-height: .98; letter-spacing: -.04em; }
+.public-lead { max-width: 510px; color: #607d80; font-size: 18px; line-height: 1.65; }
+.public-hero-actions { margin-top: 32px; }
+.public-text-link { color: #3e6c70; font-size: 13px; font-weight: 600; }
+.public-hero-art { position: relative; display: grid; place-items: center; min-height: 400px; border-radius: 28px; background: #dff0ef; }
+.public-hero-art img { width: min(72%, 340px); height: auto; filter: drop-shadow(0 26px 20px rgba(41, 91, 94, .16)); }
+.public-art-note { position: absolute; right: 8%; bottom: 11%; padding: 14px 18px; border: 1px solid rgba(0, 128, 128, .12); border-radius: 12px; background: rgba(255,255,255,.82); color: #38676a; font-size: 12px; line-height: 1.5; }
+.public-features { display: grid; grid-template-columns: repeat(3, 1fr); max-width: 1116px; gap: 1px; margin: 0 auto; padding: 0 32px 90px; background: #cfe1e1; }
+.public-features article { min-height: 190px; padding: 28px 24px; background: #f6f8f8; }
+.public-feature-number { color: #008080; font-size: 11px; font-weight: 700; letter-spacing: .12em; }
+.public-features h2 { margin: 18px 0 10px; color: #17383b; font-size: 18px; }
+.public-features p { max-width: 280px; color: #678184; font-size: 13px; line-height: 1.65; }
+.public-footer { display: flex; justify-content: space-between; max-width: 1116px; margin: 0 auto; padding: 22px 32px 30px; color: #789295; font-size: 12px; }
+.legal-page { min-height: 100vh; background: #f6f8f8; color: #385b5e; padding: 40px 20px 80px; }
+.legal-shell { max-width: 760px; margin: 0 auto; }
+.legal-back { display: inline-block; margin-bottom: 72px; color: #008080; font-size: 13px; font-weight: 600; }
+.legal-page h1 { margin: 14px 0 10px; color: #17383b; font-size: clamp(36px, 6vw, 56px); letter-spacing: -.04em; }
+.legal-updated { margin-bottom: 54px; color: #789295; font-size: 13px; }
+.legal-content { padding-top: 32px; border-top: 1px solid #d8e6e6; }
+.legal-content h2 { margin: 34px 0 10px; color: #17383b; font-size: 19px; }
+.legal-content p { color: #587477; font-size: 15px; line-height: 1.8; }
+.legal-content a { color: #008080; text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 700px) {
+  .public-nav { padding: 20px; }
+  .public-nav-link { display: none; }
+  .public-hero { grid-template-columns: 1fr; gap: 42px; min-height: auto; padding: 52px 20px 70px; }
+  .public-hero-copy h1 { font-size: 48px; }
+  .public-lead { font-size: 16px; }
+  .public-hero-actions { align-items: flex-start; flex-direction: column; gap: 16px; }
+  .public-hero-art { min-height: 300px; }
+  .public-features { grid-template-columns: 1fr; padding: 0 20px 60px; }
+  .public-footer { align-items: flex-start; flex-direction: column; gap: 14px; padding: 22px 20px 30px; }
+  .legal-page { padding: 24px 20px 60px; }
+  .legal-back { margin-bottom: 54px; }
+}
+
 @layer utilities {
   /* ===== TYPOGRAPHY */
   .h1 {
