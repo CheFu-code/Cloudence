@@ -54,11 +54,27 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
               return;
             }
 
-            if (file.size > MAX_FILE_SIZE) {
+            let maxBytes = MAX_FILE_SIZE; // 50MB default
+            let limitLabel = "50MB";
+            if (ext === "svg") {
+              maxBytes = 5 * 1024 * 1024;
+              limitLabel = "5MB for vector SVGs";
+            } else if (["txt", "json", "xml", "yaml", "yml", "md", "csv", "log", "env", "conf"].includes(ext)) {
+              maxBytes = 10 * 1024 * 1024;
+              limitLabel = "10MB for text/data files";
+            } else if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) {
+              maxBytes = 20 * 1024 * 1024;
+              limitLabel = "20MB for images";
+            } else if (["pdf", "docx", "xlsx", "pptx", "doc", "xls", "ppt"].includes(ext)) {
+              maxBytes = 25 * 1024 * 1024;
+              limitLabel = "25MB for documents";
+            }
+
+            if (file.size > maxBytes) {
               setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
               toast({
                 title: "Upload failed",
-                description: `${file.name} is too large. Max file size is 50MB.`,
+                description: `${file.name} is too large. Max file size is ${limitLabel}.`,
                 className: "error-toast",
               });
               return;
