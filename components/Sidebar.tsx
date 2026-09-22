@@ -6,6 +6,7 @@ import { navItems } from "@/constants";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { NavLinkPending } from "@/components/NavLinkPending";
+import { BrandLogo } from "@/components/landing/BrandLogo";
 
 interface Props {
   fullName: string;
@@ -18,11 +19,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
 
   return (
     <aside className="sidebar">
-      <Link href="/dashboard">
-       
-
-       
-      </Link>
+      <BrandLogo className="text-light-100" />
 
       <nav className="sidebar-nav">
         <ul className="flex flex-1 flex-col gap-6">
@@ -68,9 +65,9 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
           height={44}
           className="sidebar-user-avatar"
         />
-        <div className="hidden lg:block">
-          <p className="subtitle-2 capitalize">{fullName}</p>
-          <p className="caption">{email}</p>
+        <div className="hidden lg:block min-w-0">
+          <p className="subtitle-2 capitalize truncate">{fullName}</p>
+          <p className="caption truncate">{email}</p>
         </div>
       </div>
     </aside>
