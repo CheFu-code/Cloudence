@@ -76,7 +76,7 @@ export async function getFiles({
   if (types.length === 1) params.set("type", types[0]);
   if (searchText) params.set("search", searchText);
   if (limit) params.set("limit", String(limit));
-  if (sort) params.set("sort", sort);
+  params.set("sort", sort || "$createdAt-desc");
 
   const result = await request<{
     total: number;
