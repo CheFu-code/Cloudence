@@ -1,8 +1,17 @@
 import React from "react";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Zap, HardDrive, Lock, FileCheck2, ArrowUpRight } from "lucide-react";
+import { getCurrentUser } from "@/lib/actions/user.actions";
+import type { LandingUser } from "./LandingNavbar";
 
-export function HeroSection() {
+interface HeroSectionProps {
+  user?: LandingUser | null;
+}
+
+export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
+  const user = propUser !== undefined ? propUser : await getCurrentUser();
+  const isAuthenticated = Boolean(user);
+
   return (
     <section className="relative pt-8 pb-16 md:pt-16 md:pb-24 overflow-hidden">
       {/* Architectural Background Grid - subtle and precise, NOT blurry AI gradients */}
@@ -36,10 +45,10 @@ export function HeroSection() {
           {/* Call to Actions */}
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
             <Link
-              href="/sign-up"
+              href={isAuthenticated ? "/dashboard" : "/sign-up"}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md shadow-teal-700/20 hover:shadow-teal-700/30 transition-all hover:translate-y-[-1px] group"
             >
-              <span>Create Free Account</span>
+              <span>{isAuthenticated ? "Go to Workspace" : "Create Free Account"}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
             <a

@@ -9,6 +9,8 @@ import { FAQAccordion } from "@/components/landing/FAQAccordion";
 import { CTASection } from "@/components/landing/CTASection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
+import { getCurrentUser } from "@/lib/actions/user.actions";
+
 export const metadata: Metadata = {
   title: "Cloudence | Focused Cloud Workspace for Your Files",
   description:
@@ -20,14 +22,17 @@ export const metadata: Metadata = {
     "Cloudence",
     "secure file sharing",
     "document management",
+    "Chefu Unified OTP",
   ],
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const currentUser = await getCurrentUser();
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-teal-500 selection:text-white">
       {/* Sticky Navigation Bar */}
-      <LandingNavbar />
+      <LandingNavbar user={currentUser} />
 
       {/* Main Content Sections */}
       <main>

@@ -32,7 +32,7 @@ interface MockFile {
 const INITIAL_FILES: MockFile[] = [
   {
     id: "img-1",
-    name: "Screenshot (19).png",
+    name: "Budget Overview.png",
     type: "image",
     extension: "png",
     size: "348.2 KB",
@@ -43,7 +43,7 @@ const INITIAL_FILES: MockFile[] = [
   },
   {
     id: "img-2",
-    name: "Screenshot.png",
+    name: "Client Presentation.png",
     type: "image",
     extension: "png",
     size: "250.3 KB",
@@ -126,50 +126,51 @@ export function InteractiveWorkspaceDemo() {
   };
 
   return (
-    <section id="interactive-demo" className="py-16 md:py-24 bg-[#F8FAFC] border-y border-slate-200/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="interactive-demo" className="py-12 sm:py-16 md:py-24 bg-[#F8FAFC] border-y border-slate-200/80">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-dark-200 tracking-tight font-poppins">
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-dark-200 tracking-tight font-poppins">
             Experience the real Cloudence dashboard.
           </h2>
-          <p className="mt-3 text-base text-light-100 max-w-2xl mx-auto">
+          <p className="mt-2.5 sm:mt-3 text-sm sm:text-base text-light-100 max-w-2xl mx-auto">
             Try the actual Cloudence interface live below: switch between Dashboard, Documents, and Images, test real-time search, inspect file properties, and simulate uploads.
           </p>
         </div>
 
         {/* Browser Mockup Frame */}
-        <div className="rounded-[24px] border border-slate-300/80 bg-white shadow-2xl overflow-hidden">
+        <div className="rounded-[18px] sm:rounded-[24px] border border-slate-300/80 bg-white shadow-xl sm:shadow-2xl overflow-hidden">
           {/* Browser Navigation Bar */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200 bg-[#EBF0F5] text-xs text-slate-600">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-[#FF5F56] inline-block border border-[#E0443E]" />
-              <span className="w-3 h-3 rounded-full bg-[#FFBD2E] inline-block border border-[#DEA123]" />
-              <span className="w-3 h-3 rounded-full bg-[#27C93F] inline-block border border-[#1AAB29]" />
+          <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 border-b border-slate-200 bg-[#EBF0F5] text-xs text-slate-600">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FF5F56] inline-block border border-[#E0443E]" />
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#FFBD2E] inline-block border border-[#DEA123]" />
+              <span className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-[#27C93F] inline-block border border-[#1AAB29]" />
             </div>
 
             {/* URL bar */}
-            <div className="flex-1 max-w-lg mx-4">
-              <div className="bg-white rounded-full px-4 py-1.5 border border-slate-300 flex items-center justify-between text-xs text-slate-700 shadow-inner">
-                <div className="flex items-center gap-2 truncate">
-                  <span className="text-emerald-600 font-bold">🔒</span>
-                  <span className="font-mono text-slate-800 font-medium">https://cloudence.chefu.co.za/dashboard</span>
+            <div className="flex-1 max-w-lg mx-2 sm:mx-4 min-w-0">
+              <div className="bg-white rounded-full px-3 sm:px-4 py-1 sm:py-1.5 border border-slate-300 flex items-center justify-between text-xs text-slate-700 shadow-inner min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 truncate">
+                  <span className="text-emerald-600 font-bold shrink-0 text-[11px] sm:text-xs">🔒</span>
+                  <span className="font-mono text-slate-800 font-medium text-[11px] sm:text-xs truncate">
+                    https://cloudence.chefu.co.za/dashboard
+                  </span>
                 </div>
-                <span className="text-[10px] font-mono text-brand font-semibold px-2 py-0.5 rounded bg-brand/10">
+                <span className="text-[9px] sm:text-[10px] font-mono text-brand font-semibold px-1.5 sm:px-2 py-0.5 rounded bg-brand/10 shrink-0 ml-1.5">
                   LIVE DEMO
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500">
+            <div className="hidden sm:flex items-center gap-2 text-[11px] font-mono text-slate-500 shrink-0">
               <span>99.98% Uptime</span>
             </div>
           </div>
 
           {/* REAL CLOUDENCE APP SHELL */}
-          <div className="bg-white p-4 sm:p-6 lg:p-8 flex min-h-[740px]">
-            {/* Left Sidebar */}
+          <div className="bg-white p-3 sm:p-6 lg:p-8 flex flex-col md:flex-row min-h-0 md:min-h-[740px]">
+            {/* Left Sidebar (Desktop) */}
             <aside className="hidden md:flex w-[210px] lg:w-[240px] flex-col justify-between pr-4 lg:pr-6 border-r border-slate-100 shrink-0">
               <div>
                 {/* Logo & Brand */}
@@ -227,7 +228,7 @@ export function InteractiveWorkspaceDemo() {
                 {/* User Info Pill */}
                 <div className="flex items-center gap-2.5 rounded-full bg-brand/10 p-2 text-light-100">
                   <div className="w-10 h-10 rounded-full overflow-hidden bg-brand/20 shrink-0 border border-brand/30 flex items-center justify-center text-brand font-bold text-xs">
-                    KM
+                    JD
                   </div>
                   <div className="min-w-0 pr-1">
                     <p className="text-xs font-bold text-dark-200 truncate font-poppins">John Doe</p>
@@ -239,27 +240,73 @@ export function InteractiveWorkspaceDemo() {
 
             {/* Right Main Content Area */}
             <main className="flex-1 flex flex-col md:pl-6 min-w-0">
+              {/* Mobile Brand & User Bar (visible only on mobile) */}
+              <div className="flex md:hidden items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-brand flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                    C
+                  </div>
+                  <span className="text-base font-bold text-dark-200 font-poppins">Cloudence</span>
+                </div>
+                <div className="flex items-center gap-2 rounded-full bg-brand/10 py-1 px-2.5 text-light-100">
+                  <div className="w-6 h-6 rounded-full bg-brand/20 shrink-0 border border-brand/30 flex items-center justify-center text-brand font-bold text-[10px]">
+                    JD
+                  </div>
+                  <span className="text-xs font-semibold text-dark-200 font-poppins">John Doe</span>
+                </div>
+              </div>
+
+              {/* Mobile Navigation Tabs (visible only on mobile) */}
+              <div className="flex md:hidden items-center gap-1.5 overflow-x-auto pb-2 mb-3 scrollbar-none no-scrollbar">
+                {navItems.map((item) => {
+                  const isActive = activeNav === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => {
+                        setActiveNav(item.id as any);
+                        setActiveDropdownFileId(null);
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all ${
+                        isActive
+                          ? "bg-brand text-white shadow-sm"
+                          : "bg-white text-light-100 border border-slate-200 hover:text-dark-200 hover:border-slate-300"
+                      }`}
+                    >
+                      <Image
+                        src={item.icon}
+                        alt={item.name}
+                        width={15}
+                        height={15}
+                        className={isActive ? "invert-0 opacity-100 brightness-200" : "opacity-50"}
+                      />
+                      <span>{item.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
               {/* Header */}
-              <header className="flex items-center justify-between gap-4 mb-6">
+              <header className="flex items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6">
                 {/* Search Bar */}
                 <div className="relative flex-1 max-w-[480px]">
-                  <div className="flex items-center h-[52px] rounded-full bg-white px-5 shadow-drop-3 border border-slate-100">
+                  <div className="flex items-center h-[46px] sm:h-[52px] rounded-full bg-white px-3.5 sm:px-5 shadow-drop-3 border border-slate-100">
                     <Image
                       src="/assets/icons/search.svg"
                       alt="Search"
                       width={18}
                       height={18}
-                      className="opacity-40 mr-3"
+                      className="opacity-40 mr-2 sm:mr-3 shrink-0"
                     />
                     <input
                       type="text"
-                      placeholder="Search..."
+                      placeholder="Search files..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full bg-transparent text-sm text-dark-200 placeholder:text-light-200 focus:outline-none"
+                      className="w-full bg-transparent text-xs sm:text-sm text-dark-200 placeholder:text-light-200 focus:outline-none"
                     />
                     {searchQuery && (
-                      <button onClick={() => setSearchQuery("")} className="text-light-200 hover:text-dark-200">
+                      <button onClick={() => setSearchQuery("")} className="text-light-200 hover:text-dark-200 ml-1">
                         <X className="w-4 h-4" />
                       </button>
                     )}
@@ -267,31 +314,32 @@ export function InteractiveWorkspaceDemo() {
                 </div>
 
                 {/* Header Actions */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                   <button
                     onClick={() => setModalType("upload")}
-                    className="primary-btn h-[44px] rounded-full px-6 flex items-center gap-2 bg-brand text-white shadow-drop-1 hover:bg-brand-100 transition-all"
+                    className="primary-btn h-[42px] sm:h-[44px] rounded-full px-3.5 sm:px-6 flex items-center justify-center gap-2 bg-brand text-white shadow-drop-1 hover:bg-brand-100 transition-all shrink-0"
+                    title="Upload file"
                   >
                     <Image
                       src="/assets/icons/upload.svg"
                       alt="Upload"
-                      width={20}
-                      height={20}
-                      className="brightness-200"
+                      width={18}
+                      height={18}
+                      className="brightness-200 shrink-0"
                     />
                     <span className="text-sm font-semibold hidden sm:inline">Upload</span>
                   </button>
 
                   <button
                     onClick={() => showToast("Simulated sign-out action")}
-                    className="w-[44px] h-[44px] rounded-full bg-brand/10 hover:bg-brand/20 flex items-center justify-center text-brand transition-colors"
+                    className="w-[42px] h-[42px] sm:w-[44px] sm:h-[44px] rounded-full bg-brand/10 hover:bg-brand/20 flex items-center justify-center text-brand transition-colors shrink-0"
                     title="Log out"
                   >
                     <Image
                       src="/assets/icons/logout.svg"
                       alt="Log out"
-                      width={22}
-                      height={22}
+                      width={20}
+                      height={20}
                     />
                   </button>
                 </div>
@@ -308,16 +356,16 @@ export function InteractiveWorkspaceDemo() {
               )}
 
               {/* Content Panel (Gray rounded shell matching real app) */}
-              <div className="flex-1 bg-light-400 rounded-[24px] p-4 sm:p-6 overflow-y-auto">
+              <div className="flex-1 bg-light-400 rounded-[20px] sm:rounded-[24px] p-3 sm:p-6 overflow-y-auto">
                 {activeNav === "dashboard" ? (
                   /* ================= DASHBOARD VIEW (From Screenshot) ================= */
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 lg:gap-6">
                     {/* Left Column: Chart Card + 2x2 Summary Cards */}
-                    <div className="lg:col-span-7 flex flex-col gap-5">
+                    <div className="lg:col-span-7 flex flex-col gap-4 sm:gap-5">
                       {/* Radial Chart Card */}
-                      <div className="flex flex-col sm:flex-row items-center rounded-[20px] bg-brand p-6 text-white shadow-sm">
+                      <div className="flex flex-col sm:flex-row items-center rounded-[18px] sm:rounded-[20px] bg-brand p-5 sm:p-6 text-white shadow-sm">
                         {/* Donut Progress Meter */}
-                        <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+                        <div className="relative w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center shrink-0">
                           <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
                             {/* Background Track */}
                             <circle
@@ -348,30 +396,30 @@ export function InteractiveWorkspaceDemo() {
                         </div>
 
                         {/* Text Details */}
-                        <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
-                          <h3 className="text-lg font-bold text-white font-poppins">Available Storage</h3>
-                          <p className="text-sm text-white/80 mt-1 font-medium">598.5 KB / 2GB</p>
+                        <div className="mt-3 sm:mt-0 sm:ml-6 text-center sm:text-left">
+                          <h3 className="text-base sm:text-lg font-bold text-white font-poppins">Available Storage</h3>
+                          <p className="text-xs sm:text-sm text-white/80 mt-1 font-medium">598.5 KB / 2GB</p>
                         </div>
                       </div>
 
                       {/* 2x2 Summary Cards */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-2.5 sm:gap-4">
                         {/* Documents */}
                         <div
                           onClick={() => setActiveNav("documents")}
-                          className="relative rounded-[18px] bg-white p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                          className="relative rounded-[16px] sm:rounded-[18px] bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
                         >
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#FF5B5B] flex items-center justify-center text-white shadow-sm">
-                              <FileText className="w-5 h-5" />
+                          <div className="flex justify-between items-center sm:items-start mb-2 sm:mb-4">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#FF5B5B] flex items-center justify-center text-white shadow-sm shrink-0">
+                              <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
-                            <span className="text-sm font-bold text-dark-200">
+                            <span className="text-xs sm:text-sm font-bold text-dark-200 truncate ml-1">
                               {files.filter((f) => f.type === "document").length > 0 ? "1.2 MB" : "0 Bytes"}
                             </span>
                           </div>
-                          <h4 className="text-sm font-semibold text-dark-200 text-center mb-3">Documents</h4>
-                          <div className="h-[1px] bg-light-400 w-full mb-2" />
-                          <p className="text-xs text-light-200 text-center">
+                          <h4 className="text-xs sm:text-sm font-semibold text-dark-200 text-center mb-1.5 sm:mb-3">Documents</h4>
+                          <div className="h-[1px] bg-light-400 w-full mb-1.5 sm:mb-2" />
+                          <p className="text-[10px] sm:text-xs text-light-200 text-center truncate">
                             {files.filter((f) => f.type === "document").length > 0 ? "Just now" : "-"}
                           </p>
                         </div>
@@ -379,85 +427,85 @@ export function InteractiveWorkspaceDemo() {
                         {/* Images */}
                         <div
                           onClick={() => setActiveNav("images")}
-                          className="relative rounded-[18px] bg-white p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                          className="relative rounded-[16px] sm:rounded-[18px] bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
                         >
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#38B6FF] flex items-center justify-center text-white shadow-sm">
-                              <ImageIcon className="w-5 h-5" />
+                          <div className="flex justify-between items-center sm:items-start mb-2 sm:mb-4">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#38B6FF] flex items-center justify-center text-white shadow-sm shrink-0">
+                              <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
-                            <span className="text-sm font-bold text-dark-200">598.5 KB</span>
+                            <span className="text-xs sm:text-sm font-bold text-dark-200 truncate ml-1">598.5 KB</span>
                           </div>
-                          <h4 className="text-sm font-semibold text-dark-200 text-center mb-3">Images</h4>
-                          <div className="h-[1px] bg-light-400 w-full mb-2" />
-                          <p className="text-xs text-light-200 text-center">11:22am, 22 Sep</p>
+                          <h4 className="text-xs sm:text-sm font-semibold text-dark-200 text-center mb-1.5 sm:mb-3">Images</h4>
+                          <div className="h-[1px] bg-light-400 w-full mb-1.5 sm:mb-2" />
+                          <p className="text-[10px] sm:text-xs text-light-200 text-center truncate">11:22am, 22 Sep</p>
                         </div>
 
                         {/* Media */}
                         <div
                           onClick={() => setActiveNav("media")}
-                          className="relative rounded-[18px] bg-white p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                          className="relative rounded-[16px] sm:rounded-[18px] bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
                         >
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#3DD9B3] flex items-center justify-center text-white shadow-sm">
-                              <Film className="w-5 h-5" />
+                          <div className="flex justify-between items-center sm:items-start mb-2 sm:mb-4">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#3DD9B3] flex items-center justify-center text-white shadow-sm shrink-0">
+                              <Film className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
-                            <span className="text-sm font-bold text-dark-200">0 Bytes</span>
+                            <span className="text-xs sm:text-sm font-bold text-dark-200 truncate ml-1">0 Bytes</span>
                           </div>
-                          <h4 className="text-sm font-semibold text-dark-200 text-center mb-3">Media</h4>
-                          <div className="h-[1px] bg-light-400 w-full mb-2" />
-                          <p className="text-xs text-light-200 text-center">-</p>
+                          <h4 className="text-xs sm:text-sm font-semibold text-dark-200 text-center mb-1.5 sm:mb-3">Media</h4>
+                          <div className="h-[1px] bg-light-400 w-full mb-1.5 sm:mb-2" />
+                          <p className="text-[10px] sm:text-xs text-light-200 text-center truncate">-</p>
                         </div>
 
                         {/* Others */}
                         <div
                           onClick={() => setActiveNav("others")}
-                          className="relative rounded-[18px] bg-white p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                          className="relative rounded-[16px] sm:rounded-[18px] bg-white p-3 sm:p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
                         >
-                          <div className="flex justify-between items-start mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#EEA8FD] flex items-center justify-center text-white shadow-sm">
-                              <FolderArchive className="w-5 h-5" />
+                          <div className="flex justify-between items-center sm:items-start mb-2 sm:mb-4">
+                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-[#EEA8FD] flex items-center justify-center text-white shadow-sm shrink-0">
+                              <FolderArchive className="w-4 h-4 sm:w-5 sm:h-5" />
                             </div>
-                            <span className="text-sm font-bold text-dark-200">0 Bytes</span>
+                            <span className="text-xs sm:text-sm font-bold text-dark-200 truncate ml-1">0 Bytes</span>
                           </div>
-                          <h4 className="text-sm font-semibold text-dark-200 text-center mb-3">Others</h4>
-                          <div className="h-[1px] bg-light-400 w-full mb-2" />
-                          <p className="text-xs text-light-200 text-center">-</p>
+                          <h4 className="text-xs sm:text-sm font-semibold text-dark-200 text-center mb-1.5 sm:mb-3">Others</h4>
+                          <div className="h-[1px] bg-light-400 w-full mb-1.5 sm:mb-2" />
+                          <p className="text-[10px] sm:text-xs text-light-200 text-center truncate">-</p>
                         </div>
                       </div>
                     </div>
 
                     {/* Right Column: Recent Files Uploaded */}
                     <div className="lg:col-span-5">
-                      <div className="bg-white rounded-[20px] p-6 shadow-sm h-full flex flex-col">
-                        <h3 className="text-lg font-bold text-dark-200 mb-5 font-poppins">Recent files uploaded</h3>
+                      <div className="bg-white rounded-[18px] sm:rounded-[20px] p-4 sm:p-6 shadow-sm h-full flex flex-col">
+                        <h3 className="text-base sm:text-lg font-bold text-dark-200 mb-4 sm:mb-5 font-poppins">Recent files uploaded</h3>
 
                         {filteredFiles.length === 0 ? (
-                          <div className="text-center py-12 text-light-200 text-sm">
+                          <div className="text-center py-10 sm:py-12 text-light-200 text-sm">
                             <p>No files uploaded</p>
                           </div>
                         ) : (
-                          <div className="space-y-4 flex-1">
+                          <div className="space-y-3 sm:space-y-4 flex-1">
                             {filteredFiles.map((file) => (
                               <div
                                 key={file.id}
                                 className="relative flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors"
                               >
-                                <div className="flex items-center gap-3 min-w-0 pr-2">
+                                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2">
                                   {/* Circular thumbnail */}
-                                  <div className="w-12 h-12 rounded-full bg-brand/10 overflow-hidden flex items-center justify-center shrink-0">
-                                    <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center text-white text-[10px]">
+                                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand/10 overflow-hidden flex items-center justify-center shrink-0">
+                                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800 flex items-center justify-center text-white text-[9px] sm:text-[10px]">
                                       {file.extension.toUpperCase()}
                                     </div>
                                   </div>
 
                                   <div className="min-w-0">
-                                    <p className="text-sm font-semibold text-dark-200 truncate">{file.name}</p>
-                                    <p className="text-xs text-light-200">{file.date}</p>
+                                    <p className="text-xs sm:text-sm font-semibold text-dark-200 truncate">{file.name}</p>
+                                    <p className="text-[11px] sm:text-xs text-light-200">{file.date}</p>
                                   </div>
                                 </div>
 
                                 {/* Action button */}
-                                <div className="relative">
+                                <div className="relative shrink-0">
                                   <button
                                     onClick={() =>
                                       setActiveDropdownFileId(
@@ -522,10 +570,10 @@ export function InteractiveWorkspaceDemo() {
                 ) : (
                   /* ================= TYPE LIST VIEW (e.g. Images, Documents) ================= */
                   <div>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
                       <div>
-                        <h2 className="text-2xl font-bold text-dark-200 capitalize font-poppins">{activeNav}</h2>
-                        <p className="text-sm text-light-100 mt-1">
+                        <h2 className="text-xl sm:text-2xl font-bold text-dark-200 capitalize font-poppins">{activeNav}</h2>
+                        <p className="text-xs sm:text-sm text-light-100 mt-1">
                           Total:{" "}
                           <span className="font-semibold text-dark-200">
                             {activeNav === "images"
@@ -539,22 +587,22 @@ export function InteractiveWorkspaceDemo() {
 
                       <button
                         onClick={() => setActiveNav("dashboard")}
-                        className="text-xs font-semibold text-brand hover:underline self-start sm:self-auto"
+                        className="text-xs font-semibold text-brand hover:underline self-start sm:self-auto flex items-center gap-1"
                       >
                         ← Back to Dashboard
                       </button>
                     </div>
 
                     {filteredFiles.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                         {filteredFiles.map((file) => (
                           <div
                             key={file.id}
-                            className="bg-white rounded-[16px] p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative"
+                            className="bg-white rounded-[16px] p-3.5 sm:p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between relative"
                           >
-                            <div className="flex justify-between items-start mb-4">
-                              <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center">
-                                <span className="font-bold text-brand font-mono text-sm uppercase">
+                            <div className="flex justify-between items-start mb-3 sm:mb-4">
+                              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-brand/10 flex items-center justify-center">
+                                <span className="font-bold text-brand font-mono text-xs sm:text-sm uppercase">
                                   {file.extension}
                                 </span>
                               </div>
@@ -567,21 +615,21 @@ export function InteractiveWorkspaceDemo() {
                                 >
                                   <MoreVertical className="w-4 h-4" />
                                 </button>
-                                <span className="text-xs font-medium text-light-100">{file.size}</span>
+                                <span className="text-[11px] sm:text-xs font-medium text-light-100">{file.size}</span>
                               </div>
                             </div>
 
                             <div>
-                              <p className="text-sm font-semibold text-dark-200 truncate">{file.name}</p>
-                              <p className="text-xs text-light-200 mt-1">{file.date}</p>
-                              <p className="text-[11px] text-light-200 mt-1">By: John Doe</p>
+                              <p className="text-xs sm:text-sm font-semibold text-dark-200 truncate">{file.name}</p>
+                              <p className="text-[11px] sm:text-xs text-light-200 mt-1">{file.date}</p>
+                              <p className="text-[10px] sm:text-[11px] text-light-200 mt-0.5">By: John Doe</p>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-16 bg-white rounded-[20px]">
-                        <p className="text-sm text-light-200">No files uploaded in {activeNav}</p>
+                      <div className="text-center py-12 sm:py-16 bg-white rounded-[18px] sm:rounded-[20px]">
+                        <p className="text-xs sm:text-sm text-light-200">No files uploaded in {activeNav}</p>
                         <button
                           onClick={handleSimulatedUpload}
                           className="mt-3 text-xs font-semibold text-brand hover:underline"
@@ -602,7 +650,7 @@ export function InteractiveWorkspaceDemo() {
         {/* Details Modal */}
         {modalType === "details" && selectedModalFile && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-[24px] max-w-md w-full p-6 shadow-2xl relative animate-scaleUp">
+            <div className="bg-white rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-2xl relative animate-scaleUp max-h-[90vh] overflow-y-auto">
               <button
                 onClick={() => setModalType(null)}
                 className="absolute top-5 right-5 text-light-200 hover:text-dark-200"
@@ -657,7 +705,7 @@ export function InteractiveWorkspaceDemo() {
         {/* Share Modal */}
         {modalType === "share" && selectedModalFile && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-[24px] max-w-md w-full p-6 shadow-2xl relative animate-scaleUp">
+            <div className="bg-white rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-2xl relative animate-scaleUp max-h-[90vh] overflow-y-auto">
               <button
                 onClick={() => setModalType(null)}
                 className="absolute top-5 right-5 text-light-200 hover:text-dark-200"
@@ -677,7 +725,7 @@ export function InteractiveWorkspaceDemo() {
                       type="text"
                       readOnly
                       value={`https://cloudence.chefu.co.za/f/${selectedModalFile.id}`}
-                      className="flex-1 px-3.5 py-2 rounded-xl bg-light-400 border border-slate-200 text-xs font-mono text-dark-200 focus:outline-none"
+                      className="min-w-0 flex-1 px-3.5 py-2 rounded-xl bg-light-400 border border-slate-200 text-xs font-mono text-dark-200 focus:outline-none"
                     />
                     <button
                       onClick={() => {
@@ -725,7 +773,7 @@ export function InteractiveWorkspaceDemo() {
         {/* Rename Modal */}
         {modalType === "rename" && selectedModalFile && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-[24px] max-w-md w-full p-6 shadow-2xl relative animate-scaleUp">
+            <div className="bg-white rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-2xl relative animate-scaleUp max-h-[90vh] overflow-y-auto">
               <button
                 onClick={() => setModalType(null)}
                 className="absolute top-5 right-5 text-light-200 hover:text-dark-200"
@@ -771,7 +819,7 @@ export function InteractiveWorkspaceDemo() {
         {/* Upload Modal */}
         {modalType === "upload" && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-[24px] max-w-md w-full p-6 shadow-2xl relative animate-scaleUp">
+            <div className="bg-white rounded-[24px] max-w-md w-full p-5 sm:p-6 shadow-2xl relative animate-scaleUp max-h-[90vh] overflow-y-auto">
               <button
                 onClick={() => setModalType(null)}
                 className="absolute top-5 right-5 text-light-200 hover:text-dark-200"
@@ -785,13 +833,13 @@ export function InteractiveWorkspaceDemo() {
 
               <div
                 onClick={handleSimulatedUpload}
-                className="border-2 border-dashed border-slate-200 hover:border-brand rounded-2xl p-8 text-center cursor-pointer transition-colors bg-slate-50/50 hover:bg-brand/5"
+                className="border-2 border-dashed border-slate-200 hover:border-brand rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-colors bg-slate-50/50 hover:bg-brand/5"
               >
-                <div className="w-12 h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center mx-auto mb-3">
-                  <Upload className="w-6 h-6" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-brand/10 text-brand flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                  <Upload className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <p className="text-sm font-semibold text-dark-200">Click to upload sample file</p>
-                <p className="text-xs text-light-200 mt-1">Supports PDF, DOCX, PNG, JPG, MP4, ZIP</p>
+                <p className="text-xs sm:text-sm font-semibold text-dark-200">Click to upload sample file</p>
+                <p className="text-[10px] sm:text-xs text-light-200 mt-1">Supports PDF, DOCX, PNG, JPG, MP4, ZIP</p>
               </div>
 
               <div className="mt-5 text-center">
