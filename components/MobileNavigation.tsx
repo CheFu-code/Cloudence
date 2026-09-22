@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import FileUploader from "@/components/FileUploader";
 import { signOutUser } from "@/lib/actions/user.actions";
 import { LogoutButton } from "@/components/LogoutButton";
+import { NavLinkPending } from "@/components/NavLinkPending";
 
 interface Props {
   $id: string;
@@ -93,6 +94,7 @@ const MobileNavigation = ({
                       )}
                     />
                     <p>{name}</p>
+                    <NavLinkPending />
                   </li>
                 </Link>
               ))}

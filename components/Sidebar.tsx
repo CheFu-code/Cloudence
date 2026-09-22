@@ -5,6 +5,7 @@ import Image from "next/image";
 import { navItems } from "@/constants";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { NavLinkPending } from "@/components/NavLinkPending";
 
 interface Props {
   fullName: string;
@@ -44,6 +45,7 @@ const Sidebar = ({ fullName, avatar, email }: Props) => {
                   )}
                 />
                 <p className="hidden lg:block">{name}</p>
+                <NavLinkPending />
               </li>
             </Link>
           ))}
