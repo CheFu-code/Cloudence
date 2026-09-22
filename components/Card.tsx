@@ -6,7 +6,7 @@ import ActionDropdown from "@/components/ActionDropdown";
 
 const Card = ({ file }: { file: CloudenceFile }) => {
   return (
-    <Link href={file.url} target="_blank" className="file-card">
+    <Link href={file.url} target="_blank" rel="noopener noreferrer" className="file-card">
       <div className="flex justify-between">
         <Thumbnail
           type={file.type}
