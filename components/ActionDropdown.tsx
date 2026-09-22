@@ -19,11 +19,11 @@ import {
 import { useState } from "react";
 import Image from "next/image";
 import { actionsDropdownItems } from "@/constants";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
   deleteFile,
+  getFileDownloadUrl,
   renameFile,
   updateFileUsers,
 } from "@/lib/actions/file.actions";
@@ -116,6 +116,43 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
       toast({
         title: "Share update failed",
         description: error instanceof Error ? error.message : "Please try again.",
+        className: "error-toast",
+      });
+    }
+  };
+
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDropdownOpen(false);
+
+    try {
+      const res = await getFileDownloadUrl(file.$id);
+      if (res && "error" in res && res.error) {
+        toast({
+          title: "Download failed",
+          description: String(res.error),
+          className: "error-toast",
+        });
+        return;
+      }
+      if (res && "downloadUrl" in res && res.downloadUrl) {
+        const a = document.createElement("a");
+        a.href = res.downloadUrl;
+        a.download = file.name;
+        a.target = "_blank";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        toast({
+          title: "Download started",
+          description: `Downloading ${file.name}...`,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Download failed",
+        description: error instanceof Error ? error.message : "Could not download file. Please try again.",
         className: "error-toast",
       });
     }
@@ -226,10 +263,9 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
               }}
             >
               {actionItem.value === "download" ? (
-                <Link
-                  href={file.url}
-                  download={file.name}
-                  className="flex items-center gap-2"
+                <div
+                  onClick={handleDownload}
+                  className="flex items-center gap-2 cursor-pointer w-full"
                 >
                   <Image
                     src={actionItem.icon}
@@ -238,7 +274,7 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
                     height={30}
                   />
                   {actionItem.label}
-                </Link>
+                </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <Image

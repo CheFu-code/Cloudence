@@ -80,6 +80,8 @@ declare interface CloudenceFile {
   owner: { id: string; fullName: string; email: string };
   users: string[];
   publicId: string;
+  sha256?: string;
+  shareExpiresAt?: string;
 }
 
 declare interface ShareInputProps {

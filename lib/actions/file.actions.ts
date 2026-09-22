@@ -143,3 +143,12 @@ export async function getTotalSpaceUsed() {
     all: number;
   }>("/cloudence/files/usage");
 }
+
+export async function getFileDownloadUrl(fileId: string) {
+  return safeRequest<{
+    downloadUrl: string;
+    name: string;
+    sha256?: string;
+    size: number;
+  }>(`/cloudence/files/${fileId}/download?json=true`);
+}
