@@ -223,3 +223,12 @@ export const getFileTypesParams = (type: string) => {
       return ["document"];
   }
 };
+
+export const getOptimizedThumbnailUrl = (url: string, width = 160, height = 160): string => {
+  if (!url || typeof url !== "string") return url;
+  // If not Cloudinary or already has a transformation applied, return as is
+  if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
+  if (url.includes("/c_thumb") || url.includes("/c_fill") || url.includes("/c_scale")) return url;
+  return url.replace("/upload/", `/upload/c_thumb,w_${width},h_${height},g_auto,q_auto,f_auto/`);
+};
+

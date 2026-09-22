@@ -87,7 +87,11 @@ export async function getFiles({
   limit,
 }: GetFilesProps) {
   const params = new URLSearchParams();
-  if (types.length === 1) params.set("type", types[0]);
+  if (types.length === 1) {
+    params.set("type", types[0]);
+  } else if (types.length > 1) {
+    params.set("types", types.join(","));
+  }
   if (searchText) params.set("search", searchText);
   if (limit) params.set("limit", String(limit));
   params.set("sort", sort || "$createdAt-desc");

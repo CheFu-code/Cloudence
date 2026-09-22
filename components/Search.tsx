@@ -20,6 +20,7 @@ const Search = () => {
   const [debouncedQuery] = useDebounce(query, 300);
 
   useEffect(() => {
+    let isCurrent = true;
     const fetchFiles = async () => {
       if (debouncedQuery.length === 0) {
         setResults([]);
@@ -28,11 +29,16 @@ const Search = () => {
       }
 
       const files = await getFiles({ types: [], searchText: debouncedQuery });
-      setResults(files.documents);
-      setOpen(true);
+      if (isCurrent) {
+        setResults(files.documents);
+        setOpen(true);
+      }
     };
 
     fetchFiles();
+    return () => {
+      isCurrent = false;
+    };
   }, [debouncedQuery]);
 
   useEffect(() => {
