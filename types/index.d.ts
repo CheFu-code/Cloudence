@@ -75,12 +75,11 @@ declare interface CloudenceFile {
   name: string;
   type: FileType;
   extension: string;
+  /** Resolved delivery URL (signed or CDN). Pre-computed by server, not re-derived client-side. */
   url: string;
   size: number;
   owner: { id: string; fullName: string; email: string };
   users: string[];
-  publicId: string;
-  sha256?: string;
   shareExpiresAt?: string;
 }
 
