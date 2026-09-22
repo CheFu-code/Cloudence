@@ -10,21 +10,32 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { sortTypes } from "@/constants";
 
-const Sort = () => {
+interface SortProps {
+  value?: string;
+  onSortChange?: (value: string) => void;
+}
+
+const Sort = ({ value, onSortChange }: SortProps = {}) => {
   const path = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleSort = (value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("sort", value);
-    router.push(`${path}?${params.toString()}`);
+  const handleSort = (sortValue: string) => {
+    if (onSortChange) {
+      onSortChange(sortValue);
+    } else {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("sort", sortValue);
+      router.push(`${path}?${params.toString()}`);
+    }
   };
+
+  const selectedValue = value || searchParams.get("sort") || sortTypes[0].value;
 
   return (
     <Select
       onValueChange={handleSort}
-      value={searchParams.get("sort") || sortTypes[0].value}
+      value={selectedValue}
     >
       <SelectTrigger className="sort-select">
         <SelectValue placeholder={sortTypes[0].value} />
