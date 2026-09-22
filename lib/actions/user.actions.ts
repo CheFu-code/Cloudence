@@ -88,8 +88,8 @@ export async function signOutUser() {
       method: "DELETE",
     });
   } catch {
-    // Intentionally swallow backend errors so the app can redirect to the sign-in screen.
-  } finally {
-    redirect("/sign-in");
+    // Intentionally swallow backend errors — we still redirect below.
   }
+
+  redirect("/sign-in");
 }
