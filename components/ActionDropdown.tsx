@@ -29,6 +29,7 @@ import {
 } from "@/lib/actions/file.actions";
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
+import { useToast } from "@/hooks/use-toast";
 
 const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,6 +38,7 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
+  const { toast } = useToast();
 
   const path = usePathname();
 
@@ -61,24 +63,41 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
         deleteFile({ fileId: file.$id, path }),
     };
 
-    result = await actions[action.value as keyof typeof actions]();
-
-    if (result) closeAllModals();
-
-    setIsLoading(false);
+    try {
+      result = await actions[action.value as keyof typeof actions]();
+      if (result) {
+        toast({
+          title: `${action.label} complete`,
+          description: `${file.name} was updated successfully.`,
+        });
+        closeAllModals();
+      }
+    } catch (error) {
+      toast({
+        title: `${action.label} failed`,
+        description: error instanceof Error ? error.message : "Please try again.",
+        className: "error-toast",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleRemoveUser = async (email: string) => {
     const updatedEmails = emails.filter((e) => e !== email);
 
-    const success = await updateFileUsers({
-      fileId: file.$id,
-      emails: updatedEmails,
-      path,
-    });
-
-    if (success) setEmails(updatedEmails);
-    closeAllModals();
+    try {
+      await updateFileUsers({ fileId: file.$id, emails: updatedEmails, path });
+      setEmails(updatedEmails);
+      toast({ title: "Share settings updated", description: `${email} was removed.` });
+      closeAllModals();
+    } catch (error) {
+      toast({
+        title: "Share update failed",
+        description: error instanceof Error ? error.message : "Please try again.",
+        className: "error-toast",
+      });
+    }
   };
 
   const renderDialogContent = () => {
@@ -119,10 +138,10 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
         </DialogHeader>
         {["rename", "delete", "share"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
-            <Button onClick={closeAllModals} className="modal-cancel-button">
+            <Button disabled={isLoading} onClick={closeAllModals} className="modal-cancel-button">
               Cancel
             </Button>
-            <Button onClick={handleAction} className="modal-submit-button">
+            <Button disabled={isLoading} onClick={handleAction} className="modal-submit-button">
               <p className="capitalize">{value}</p>
               {isLoading && (
                 <Image
@@ -143,7 +162,7 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   return (
     <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-        <DropdownMenuTrigger className="shad-no-focus">
+        <DropdownMenuTrigger disabled={isLoading} className="shad-no-focus">
           <Image
             src="/assets/icons/dots.svg"
             alt="dots"

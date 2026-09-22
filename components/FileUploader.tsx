@@ -22,42 +22,46 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
   const path = usePathname();
   const { toast } = useToast();
   const [files, setFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
+      if (isUploading || acceptedFiles.length === 0) return;
+      setIsUploading(true);
       setFiles(acceptedFiles);
 
-      const uploadPromises = acceptedFiles.map(async (file) => {
-        if (file.size > MAX_FILE_SIZE) {
-          setFiles((prevFiles) =>
-            prevFiles.filter((f) => f.name !== file.name),
-          );
-
-          return toast({
-            description: (
-              <p className="body-2 text-white">
-                <span className="font-semibold">{file.name}</span> is too large.
-                Max file size is 50MB.
-              </p>
-            ),
-            className: "error-toast",
-          });
-        }
-
-        return uploadFile({ file, ownerId, accountId, path }).then(
-          (uploadedFile) => {
-            if (uploadedFile) {
-              setFiles((prevFiles) =>
-                prevFiles.filter((f) => f.name !== file.name),
-              );
+      try {
+        await Promise.all(
+          acceptedFiles.map(async (file) => {
+            if (file.size > MAX_FILE_SIZE) {
+              setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+              toast({
+                title: "Upload failed",
+                description: `${file.name} is too large. Max file size is 50MB.`,
+                className: "error-toast",
+              });
+              return;
             }
-          },
-        );
-      });
 
-      await Promise.all(uploadPromises);
+            try {
+              await uploadFile({ file, ownerId, accountId, path });
+              setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+              toast({ title: "Upload complete", description: `${file.name} was uploaded.` });
+            } catch (error) {
+              setFiles((prevFiles) => prevFiles.filter((f) => f.name !== file.name));
+              toast({
+                title: "Upload failed",
+                description: error instanceof Error ? error.message : `Could not upload ${file.name}.`,
+                className: "error-toast",
+              });
+            }
+          }),
+        );
+      } finally {
+        setIsUploading(false);
+      }
     },
-    [ownerId, accountId, path],
+    [ownerId, accountId, path, isUploading, toast],
   );
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
@@ -73,14 +77,14 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
   return (
     <div {...getRootProps()} className="cursor-pointer">
       <input {...getInputProps()} />
-      <Button type="button" className={cn("uploader-button", className)}>
+      <Button type="button" disabled={isUploading} className={cn("uploader-button", className)}>
         <Image
           src="/assets/icons/upload.svg"
           alt="upload"
           width={24}
           height={24}
         />{" "}
-        <p>Upload</p>
+        <p>{isUploading ? "Uploading..." : "Upload"}</p>
       </Button>
       {files.length > 0 && (
         <ul className="uploader-preview-list">
