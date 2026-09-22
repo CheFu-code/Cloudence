@@ -80,8 +80,11 @@ export async function getCurrentUser() {
 
 export async function signOutUser() {
   try {
+    const cookieHeader = await getChefuCookieHeader();
+
     await fetch(apiUrl("/auth/session?global=true"), {
       credentials: "include",
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
       method: "DELETE",
     });
   } catch {

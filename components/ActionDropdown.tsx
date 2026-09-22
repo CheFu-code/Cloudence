@@ -3,6 +3,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -91,6 +92,9 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
           <DialogTitle className="text-center text-light-100">
             {label}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            File action dialog for {file.name}
+          </DialogDescription>
           {value === "rename" && (
             <Input
               type="text"
