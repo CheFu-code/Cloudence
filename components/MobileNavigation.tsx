@@ -10,7 +10,7 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Separator } from "@radix-ui/react-separator";
-import { navItems } from "@/constants";
+import { navItems, avatarPlaceholderUrl } from "@/constants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import FileUploader from "@/components/FileUploader";
@@ -38,7 +38,7 @@ const MobileNavigation = ({
 
   return (
     <header className="mobile-header">
-      <Link href="/dashboard">
+      <Link href="/dashboard" prefetch={true}>
       <Image
         src="/assets/icons/logo-full-brand.svg"
         alt="logo"
@@ -61,7 +61,7 @@ const MobileNavigation = ({
           <SheetTitle>
             <div className="header-user">
               <Image
-                src={avatar}
+                src={avatar || avatarPlaceholderUrl}
                 alt="avatar"
                 width={44}
                 height={44}
@@ -78,7 +78,7 @@ const MobileNavigation = ({
           <nav className="mobile-nav">
             <ul className="mobile-nav-list">
               {navItems.map(({ url, name, icon }) => (
-                <Link key={name} href={url} className="lg:w-full">
+                <Link key={name} href={url} prefetch={true} className="lg:w-full">
                   <li
                     className={cn(
                       "mobile-nav-item",

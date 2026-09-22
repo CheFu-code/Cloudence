@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Thumbnail from "@/components/Thumbnail";
 import { convertFileSize } from "@/lib/utils";
 import FormattedDateTime from "@/components/FormattedDateTime";
@@ -6,7 +5,7 @@ import ActionDropdown from "@/components/ActionDropdown";
 
 const Card = ({ file }: { file: CloudenceFile }) => {
   return (
-    <Link href={file.url} target="_blank" rel="noopener noreferrer" className="file-card">
+    <a href={file.url} target="_blank" rel="noopener noreferrer" className="file-card">
       <div className="flex justify-between">
         <Thumbnail
           type={file.type}
@@ -16,7 +15,12 @@ const Card = ({ file }: { file: CloudenceFile }) => {
           imageClassName="!size-11"
         />
 
-        <div className="flex flex-col items-end justify-between">
+        <div
+          className="flex flex-col items-end justify-between"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
           <ActionDropdown file={file} />
           <p className="body-1">{convertFileSize(file.size)}</p>
         </div>
@@ -32,7 +36,7 @@ const Card = ({ file }: { file: CloudenceFile }) => {
           By: {file.owner.fullName}
         </p>
       </div>
-    </Link>
+    </a>
   );
 };
 export default Card;
