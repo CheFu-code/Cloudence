@@ -333,6 +333,9 @@
   .modal-submit-button {
     @apply primary-btn !mx-0 h-[52px] w-full flex-1 !important;
   }
+  .modal-delete-button {
+    @apply primary-btn !mx-0 h-[52px] w-full flex-1 !bg-red-500 hover:!bg-red-600 !important;
+  }
 
   /* ActionsModalContent */
   .file-details-thumbnail {

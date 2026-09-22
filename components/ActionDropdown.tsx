@@ -53,7 +53,6 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   const handleAction = async () => {
     if (!action) return;
     setIsLoading(true);
-    let result: unknown;
 
     const actions = {
       rename: () =>
@@ -64,7 +63,19 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
     };
 
     try {
-      result = await actions[action.value as keyof typeof actions]();
+      const result = await actions[action.value as keyof typeof actions]();
+
+      // Server actions return { error } instead of throwing so the message
+      // survives Next.js production serialisation.
+      if (result && "error" in result && result.error) {
+        toast({
+          title: `${action.label} failed`,
+          description: String(result.error),
+          className: "error-toast",
+        });
+        return;
+      }
+
       if (result) {
         toast({
           title: `${action.label} complete`,
@@ -87,7 +98,17 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
     const updatedEmails = emails.filter((e) => e !== email);
 
     try {
-      await updateFileUsers({ fileId: file.$id, emails: updatedEmails, path });
+      const result = await updateFileUsers({ fileId: file.$id, emails: updatedEmails, path });
+
+      if (result && "error" in result && result.error) {
+        toast({
+          title: "Share update failed",
+          description: String(result.error),
+          className: "error-toast",
+        });
+        return;
+      }
+
       setEmails(updatedEmails);
       toast({ title: "Share settings updated", description: `${email} was removed.` });
       closeAllModals();
@@ -141,7 +162,11 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
             <Button disabled={isLoading} onClick={closeAllModals} className="modal-cancel-button">
               Cancel
             </Button>
-            <Button disabled={isLoading} onClick={handleAction} className="modal-submit-button">
+            <Button
+              disabled={isLoading}
+              onClick={handleAction}
+              className={value === "delete" ? "modal-delete-button" : "modal-submit-button"}
+            >
               <p className="capitalize">{value}</p>
               {isLoading && (
                 <Image

@@ -43,6 +43,19 @@ async function request<T>(path: string, init: RequestInit = {}) {
   return data as T;
 }
 
+/** Like `request` but never throws — returns `{ error }` on failure so the
+ *  message survives Next.js server-action serialisation in production. */
+async function safeRequest<T = Record<string, unknown>>(
+  path: string,
+  init: RequestInit = {},
+): Promise<T | { error: string }> {
+  try {
+    return await request<T>(path, init);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Something went wrong. Please try again." };
+  }
+}
+
 function normalizeFile(file: Record<string, unknown>): CloudenceFile {
   return {
     ...(file as unknown as CloudenceFile),
@@ -90,27 +103,30 @@ export async function getFiles({
 }
 
 export async function renameFile({ fileId, name, extension, path }: RenameFileProps) {
-  const updated = await request<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
+  const result = await safeRequest<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
     body: JSON.stringify({ name: `${name}.${extension}` }),
     method: "PATCH",
   });
 
+  if ("error" in result) return result;
   revalidatePath(path);
-  return normalizeFile(updated);
+  return normalizeFile(result);
 }
 
 export async function updateFileUsers({ fileId, emails, path }: UpdateFileUsersProps) {
-  const updated = await request<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
+  const result = await safeRequest<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
     body: JSON.stringify({ users: emails }),
     method: "PATCH",
   });
 
+  if ("error" in result) return result;
   revalidatePath(path);
-  return normalizeFile(updated);
+  return normalizeFile(result);
 }
 
 export async function deleteFile({ fileId, path }: DeleteFileProps) {
-  await request(`/cloudence/files/${fileId}`, { method: "DELETE" });
+  const result = await safeRequest<Record<string, unknown>>(`/cloudence/files/${fileId}`, { method: "DELETE" });
+  if ("error" in result) return result;
   revalidatePath(path);
   return { status: "success" };
 }
