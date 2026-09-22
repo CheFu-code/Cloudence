@@ -1,157 +1,92 @@
 "use server";
-
-import { createAdminClient, createSessionClient } from "@/lib/appwrite";
-import { appwriteConfig } from "@/lib/appwrite/config";
-import { Query, ID } from "node-appwrite";
-import { parseStringify } from "@/lib/utils";
 import { cookies } from "next/headers";
-import { avatarPlaceholderUrl } from "@/constants";
 import { redirect } from "next/navigation";
 
-const getUserByEmail = async (email: string) => {
-  const { databases } = await createAdminClient();
+const CHEFU_API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.chefu.co.za";
 
-  const result = await databases.listDocuments(
-    appwriteConfig.databaseId,
-    appwriteConfig.usersCollectionId,
-    [Query.equal("email", [email])],
-  );
+const CHEFU_SESSION_COOKIE_NAMES = ["__session", "__session_meta"];
 
-  return result.total > 0 ? result.documents[0] : null;
-};
+function apiUrl(path: string) {
+  return `${CHEFU_API_BASE_URL.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
+}
 
-const handleError = (error: unknown, message: string) => {
-  console.log(error, message);
-  throw error;
-};
+async function getChefuCookieHeader() {
+  const cookieStore = await cookies();
+  const chefuCookies = cookieStore
+    .getAll()
+    .filter((cookie) => CHEFU_SESSION_COOKIE_NAMES.includes(cookie.name));
 
-export const sendEmailOTP = async ({ email }: { email: string }) => {
-  const { account } = await createAdminClient();
+  if (!chefuCookies.length) return "";
 
+  return chefuCookies
+    .map((cookie) => `${cookie.name}=${cookie.value}`)
+    .join("; ");
+}
+
+export async function getCurrentUser() {
   try {
-    const session = await account.createEmailToken(ID.unique(), email);
+    const cookieHeader = await getChefuCookieHeader();
 
-    return session.userId;
-  } catch (error) {
-    handleError(error, "Failed to send email OTP");
-  }
-};
+    if (!cookieHeader) {
+      return null;
+    }
 
-export const createAccount = async ({
-  fullName,
-  email,
-}: {
-  fullName: string;
-  email: string;
-}) => {
-  const existingUser = await getUserByEmail(email);
-
-  const accountId = await sendEmailOTP({ email });
-  if (!accountId) throw new Error("Failed to send an OTP");
-
-  if (!existingUser) {
-    const { databases } = await createAdminClient();
-
-    await databases.createDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.usersCollectionId,
-      ID.unique(),
-      {
-        fullName,
-        email,
-        avatar: avatarPlaceholderUrl,
-        accountId,
+    const response = await fetch(apiUrl("/auth/me"), {
+      cache: "no-store",
+      credentials: "include",
+      headers: {
+        Cookie: cookieHeader,
       },
-    );
-  }
-
-  return parseStringify({ accountId });
-};
-
-export const verifySecret = async ({
-  accountId,
-  password,
-}: {
-  accountId: string;
-  password: string;
-}) => {
-  try {
-    const { account } = await createAdminClient();
-
-    const session = await account.createSession(accountId, password);
-
-    (await cookies()).set("appwrite-session", session.secret, {
-      path: "/",
-      httpOnly: true,
-      sameSite: "strict",
-      secure: true,
     });
 
-    return parseStringify({ sessionId: session.$id });
-  } catch (error) {
-    handleError(error, "Failed to verify OTP");
-  }
-};
-
-export const getCurrentUser = async () => {
-  try {
-    const { databases, account } = await createSessionClient();
-
-    // Debugging: Check if cookies exist
-    const sessionCookie = cookies().get("appwrite-session");
-    console.log("Session Cookie:", sessionCookie);
-
-    if (!sessionCookie) {
-      console.error("Session cookie is missing!");
+    if (!response.ok) {
       return null;
     }
 
-    const result = await account.get();
-    console.log("Account Result:", result);
+    const payload = (await response.json().catch(() => null)) as
+      | {
+          user?: {
+            uid?: string;
+            email?: string;
+            displayName?: string;
+            name?: string;
+            photoURL?: string | null;
+          };
+        }
+      | null;
 
-    const user = await databases.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.usersCollectionId,
-      [Query.equal("accountId", result.$id)]
-    );
+    const user = payload?.user;
 
-    if (user.total <= 0) {
-      console.error("User document not found in database.");
+    if (!user) {
       return null;
     }
 
-    return parseStringify(user.documents[0]);
-  } catch (error) {
-    console.error("Error fetching current user:", error);
+    return {
+      $id: user.uid || user.email || "cloudence-user",
+      accountId: user.uid || user.email || "cloudence-user",
+      fullName:
+        user.displayName ||
+        user.name ||
+        (user.email ? user.email.split("@")[0] : "Cloudence User"),
+      avatar: user.photoURL || "/assets/images/avatar-placeholder.svg",
+      email: user.email || "",
+      uid: user.uid || user.email || "cloudence-user",
+    };
+  } catch {
     return null;
   }
-};
+}
 
-export const signOutUser = async () => {
-  const { account } = await createSessionClient();
-
+export async function signOutUser() {
   try {
-    await account.deleteSession("current");
-    (await cookies()).delete("appwrite-session");
-  } catch (error) {
-    handleError(error, "Failed to sign out user");
+    await fetch(apiUrl("/auth/session?global=true"), {
+      credentials: "include",
+      method: "DELETE",
+    });
+  } catch {
+    // Intentionally swallow backend errors so the app can redirect to the sign-in screen.
   } finally {
     redirect("/sign-in");
   }
-};
-
-export const signInUser = async ({ email }: { email: string }) => {
-  try {
-    const existingUser = await getUserByEmail(email);
-
-    // User exists, send OTP
-    if (existingUser) {
-      await sendEmailOTP({ email });
-      return parseStringify({ accountId: existingUser.accountId });
-    }
-
-    return parseStringify({ accountId: null, error: "User not found" });
-  } catch (error) {
-    handleError(error, "Failed to sign in user");
-  }
-};
+}

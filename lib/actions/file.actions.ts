@@ -62,7 +62,7 @@ export const uploadFile = async ({
 };
 
 const createQueries = (
-  currentUser: Models.Document,
+  currentUser: Pick<Models.Document, "$id" | "email">,
   types: string[],
   searchText: string,
   sort: string,

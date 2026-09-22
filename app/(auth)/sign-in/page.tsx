@@ -1,5 +1,11 @@
-import AuthForm from "@/components/AuthForm";
+import { redirect } from "next/navigation";
+import { accountAppUrl } from "@/lib/account-app";
 
-const SignIn = () => <AuthForm type="sign-in" />;
-
-export default SignIn;
+export default function SignIn() {
+	redirect(
+		accountAppUrl("/login", {
+			app: "cloudence",
+			returnTo: "https://cloudence.chefu.co.za/",
+		}),
+	);
+}
