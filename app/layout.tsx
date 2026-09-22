@@ -10,7 +10,7 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "Cloudence",
+  title: "Cloudence | Chefu Technologies",
   description: "Cloudence - Beyond storage, into the clouds.",
 };
 
