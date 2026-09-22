@@ -98,20 +98,22 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                 key={`${file.name}-${index}`}
                 className="uploader-preview-item"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                   <Thumbnail
                     type={type}
                     extension={extension}
                     url={convertFileToUrl(file)}
+                    className="shrink-0"
                   />
 
-                  <div className="preview-item-name">
-                    {file.name}
+                  <div className="preview-item-name min-w-0 flex-1">
+                    <p className="subtitle-2 truncate text-light-100 mb-1">{file.name}</p>
                     <Image
                       src="/assets/icons/file-loader.gif"
                       width={80}
                       height={26}
                       alt="Loader"
+                      className="shrink-0"
                     />
                   </div>
                 </div>
@@ -122,6 +124,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
                   height={24}
                   alt="Remove"
                   onClick={(e) => handleRemoveFile(e, file.name)}
+                  className="shrink-0 cursor-pointer ml-2 hover:opacity-80 transition-opacity"
                 />
               </li>
             );

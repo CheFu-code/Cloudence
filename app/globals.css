@@ -408,13 +408,13 @@
     @apply primary-btn h-[44px] gap-2 px-6 shadow-drop-1 !important;
   }
   .uploader-preview-list {
-    @apply fixed bottom-10 right-10 z-50 flex size-full h-fit max-w-[480px] flex-col gap-3 rounded-[20px] bg-white p-7 shadow-drop-3 !important;
+    @apply fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-10 sm:right-10 z-50 flex max-h-[80vh] overflow-y-auto w-auto sm:w-full sm:max-w-[480px] flex-col gap-3 rounded-[20px] bg-white p-4 sm:p-7 shadow-drop-3 !important;
   }
   .uploader-preview-item {
-    @apply flex items-center justify-between  gap-3 rounded-xl p-3 shadow-drop-3 !important;
+    @apply flex items-center justify-between gap-2.5 sm:gap-3 rounded-xl p-2.5 sm:p-3 shadow-drop-3 !important;
   }
   .preview-item-name {
-    @apply subtitle-2 mb-2 line-clamp-1 max-w-[300px] !important;
+    @apply subtitle-2 flex-1 min-w-0 !important;
   }
 
   .error-toast {
