@@ -44,6 +44,7 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+              "worker-src 'self' blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' blob: data: https://res.cloudinary.com https://cdn.pixabay.com https://img.freepik.com",
               "font-src 'self' https://fonts.gstatic.com data:",
