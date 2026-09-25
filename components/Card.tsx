@@ -2,7 +2,7 @@ import Thumbnail from "@/components/Thumbnail";
 import { convertFileSize, cn } from "@/lib/utils";
 import FormattedDateTime from "@/components/FormattedDateTime";
 import ActionDropdown from "@/components/ActionDropdown";
-import { ViewType } from "./ViewToggle"; 
+import { ViewType } from "./ViewToggle";
 
 interface CardProps {
     file: CloudenceFile;
@@ -10,17 +10,26 @@ interface CardProps {
 }
 
 const Card = ({ file, view = "grid" }: CardProps) => {
+    // Generate an initial for the Google Drive-style avatar
+    const ownerInitial = file.owner.fullName ? file.owner.fullName.charAt(0).toUpperCase() : "U";
+
     return (
         <a
             href={file.url}
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
-                "file-card transition-all",
-                view === "list" && "!flex-row !items-center !justify-between !gap-4 !p-4 !h-auto w-full"
+                "transition-all w-full block",
+                // If Grid View: use your original file-card styles
+                view === "grid" 
+                    ? "file-card" 
+                // If List View: use a Google Drive style table-row layout
+                    : "grid grid-cols-4 sm:grid-cols-12 items-center gap-4 border-b border-light-100 px-4 py-3 hover:bg-gray-50/70 cursor-pointer"
             )}
         >
-            
+            {/* =======================
+                GRID VIEW LAYOUT (Original)
+                ======================= */}
             {view === "grid" && (
                 <>
                     <div className="flex justify-between">
@@ -36,6 +45,7 @@ const Card = ({ file, view = "grid" }: CardProps) => {
                             className="flex flex-col items-end justify-between"
                             onClick={(e) => {
                                 e.stopPropagation();
+                                e.preventDefault();
                             }}
                         >
                             <ActionDropdown file={file} />
@@ -56,40 +66,54 @@ const Card = ({ file, view = "grid" }: CardProps) => {
                 </>
             )}
 
-            
+            {/* =======================
+                LIST VIEW LAYOUT (Google Drive Style)
+                ======================= */}
             {view === "list" && (
                 <>
-                    {/* Left Side: Thumbnail & Text */}
-                    <div className="flex items-center gap-4 flex-1 truncate">
+                    {/* 1. Name Column */}
+                    <div className="col-span-3 sm:col-span-5 lg:col-span-4 flex items-center gap-3 overflow-hidden pr-2">
                         <Thumbnail
                             type={file.type}
                             extension={file.extension}
                             url={file.url}
-                            className="!size-12 shrink-0"
-                            imageClassName="!size-7 shrink-0"
+                            className="!size-8 shrink-0 bg-transparent"
+                            imageClassName="!size-5"
                         />
-
-                        <div className="flex flex-col truncate pr-2">
-                            <p className="subtitle-2 line-clamp-1">{file.name}</p>
-                            <p className="caption text-light-200 line-clamp-1">
-                                By: {file.owner.fullName}
-                            </p>
-                        </div>
+                        <p className="subtitle-2 truncate text-dark-200 font-medium">
+                            {file.name}
+                        </p>
                     </div>
 
-                    {/* Right Side: Metadata & Actions */}
-                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-                        <FormattedDateTime
-                            date={file.$createdAt}
-                            className="body-2 text-light-100 hidden sm:block"
-                        />
-                        <p className="body-1 hidden md:block">
-                            {convertFileSize(file.size)}
-                        </p>
+                    {/* 2. Date Column (Hidden on mobile) */}
+                    <div className="hidden sm:flex sm:col-span-4 lg:col-span-3 items-center text-sm text-light-200 truncate">
+                        Uploaded •&nbsp;<FormattedDateTime date={file.$createdAt} className="truncate" />
+                    </div>
 
-                        <div onClick={(e) => e.stopPropagation()}>
-                            <ActionDropdown file={file} />
+                    {/* 3. Owner Column (Hidden on mobile & tablet) */}
+                    <div className="hidden lg:flex lg:col-span-3 items-center gap-2 overflow-hidden">
+                        <div className="w-6 h-6 shrink-0 rounded-full bg-emerald-700 text-white flex items-center justify-center text-[10px] font-bold">
+                            {ownerInitial}
                         </div>
+                        <p className="text-sm truncate text-dark-200">
+                            {file.owner.fullName}
+                        </p>
+                    </div>
+
+                    {/* 4. Location / Size Column (Hidden on mobile) */}
+                    <div className="hidden sm:flex sm:col-span-2 lg:col-span-1 items-center text-sm text-light-200 truncate">
+                        {convertFileSize(file.size)}
+                    </div>
+
+                    {/* 5. Actions Column (Far right) */}
+                    <div 
+                        className="col-span-1 flex justify-end"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                        }}
+                    >
+                        <ActionDropdown file={file} />
                     </div>
                 </>
             )}
