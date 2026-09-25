@@ -10,7 +10,6 @@ interface CardProps {
 }
 
 const Card = ({ file, view = "grid" }: CardProps) => {
-    // Generate an initial for the Google Drive-style avatar
     const ownerInitial = file.owner.fullName ? file.owner.fullName.charAt(0).toUpperCase() : "U";
 
     return (
@@ -20,16 +19,12 @@ const Card = ({ file, view = "grid" }: CardProps) => {
             rel="noopener noreferrer"
             className={cn(
                 "transition-all w-full block",
-                // If Grid View: use your original file-card styles
                 view === "grid" 
                     ? "file-card" 
-                // If List View: use a Google Drive style table-row layout
                     : "grid grid-cols-4 sm:grid-cols-12 items-center gap-4 border-b border-light-100 px-4 py-3 hover:bg-gray-50/70 cursor-pointer"
             )}
         >
-            {/* =======================
-                GRID VIEW LAYOUT (Original)
-                ======================= */}
+            
             {view === "grid" && (
                 <>
                     <div className="flex justify-between">
@@ -66,9 +61,7 @@ const Card = ({ file, view = "grid" }: CardProps) => {
                 </>
             )}
 
-            {/* =======================
-                LIST VIEW LAYOUT (Google Drive Style)
-                ======================= */}
+           
             {view === "list" && (
                 <>
                     {/* 1. Name Column */}
