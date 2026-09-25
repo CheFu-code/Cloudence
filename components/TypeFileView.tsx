@@ -3,7 +3,8 @@
 import React, { useState, useMemo, useEffect } from "react";
 import Sort from "@/components/Sort";
 import Card from "@/components/Card";
-import { convertFileSize } from "@/lib/utils";
+import { ViewToggle, type ViewType } from "@/components/ViewToggle";
+import { cn, convertFileSize } from "@/lib/utils";
 import { sortTypes } from "@/constants";
 
 export function sortFiles(files: CloudenceFile[], sortType: string): CloudenceFile[] {
@@ -43,15 +44,14 @@ export default function TypeFileView({
     initialSort = "$createdAt-desc",
 }: TypeFileViewProps) {
     const [currentSort, setCurrentSort] = useState(initialSort || sortTypes[0].value);
-
-    // Sync state if initialSort changes from the server
+    const [currentView, setCurrentView] = useState<ViewType>("grid");
+    
     useEffect(() => {
         if (initialSort) {
             setCurrentSort(initialSort);
         }
     }, [initialSort]);
 
-    // Listen to browser Back/Forward navigation
     useEffect(() => {
         const handlePopState = () => {
             const params = new URLSearchParams(window.location.search);
@@ -68,7 +68,6 @@ export default function TypeFileView({
     const handleSortChange = (newSort: string) => {
         setCurrentSort(newSort);
 
-        // Update URL shallowly without triggering an expensive server re-render
         if (typeof window !== "undefined") {
             const url = new URL(window.location.href);
             url.searchParams.set("sort", newSort);
@@ -85,24 +84,35 @@ export default function TypeFileView({
             <section className="w-full">
                 <h1 className="h1 capitalize">{type}</h1>
 
-                <div className="total-size-section">
+                <div className="total-size-section flex items-center justify-between mt-4">
                     <p className="body-1">
                         Total: <span className="h5">{convertFileSize(totalSize)}</span>
                     </p>
 
-                    <div className="sort-container">
-                        <p className="body-1 hidden text-light-200 sm:block">Sort by:</p>
+                    {/* 2. Group the Sort and ViewToggle together */}
+                    <div className="flex items-center gap-4 sm:gap-6">
+                        <div className="sort-container flex items-center gap-2">
+                            <p className="body-1 hidden text-light-200 sm:block">Sort by:</p>
+                            <Sort value={currentSort} onSortChange={handleSortChange} />
+                        </div>
 
-                        <Sort value={currentSort} onSortChange={handleSortChange} />
+                        {/* 3. Insert the ViewToggle */}
+                        <ViewToggle view={currentView} onChange={setCurrentView} />
                     </div>
                 </div>
             </section>
 
-            {/* Render the files */}
             {sortedFiles.length > 0 ? (
-                <section className="file-list">
+                <section
+                    className={cn(
+                        "mt-8 w-full",
+                        currentView === "grid"
+                            ? "grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" // Grid classes
+                            : "flex flex-col gap-4" // List classes
+                    )}
+                >
                     {sortedFiles.map((file: CloudenceFile) => (
-                        <Card key={file.$id} file={file} />
+                        <Card key={file.$id} file={file} view={currentView} />
                     ))}
                 </section>
             ) : (
