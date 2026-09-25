@@ -7,7 +7,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Check, LayoutGrid, List } from "lucide-react";
+import { LayoutGrid, List } from "lucide-react";
 
 export type ViewType = "list" | "grid";
 
@@ -31,7 +31,7 @@ export const ViewToggle = ({
         <TooltipProvider>
             <div
                 className={cn(
-                    "inline-flex items-center rounded-full border border-gray-300 overflow-hidden bg-white shadow-sm",
+                    "inline-flex items-center rounded-md border border-gray-200 overflow-hidden bg-white shadow-sm",
                     className
                 )}
             >
@@ -46,22 +46,13 @@ export const ViewToggle = ({
                                     type="button"
                                     aria-label={`Switch to ${id} view`}
                                     className={cn(
-                                        // Reduced padding and gap, removed sm/md scaling
-                                        "relative flex items-center gap-1.5 px-3 py-1.5 transition-colors text-sm",
-                                        index === 0 && "border-r border-gray-300",
+                                        "relative flex items-center justify-center px-2 py-1 transition-colors",
+                                        index !== VIEWS.length - 1 && "border-r border-gray-200",
                                         isActive ? "bg-[#cceeff]" : "hover:bg-gray-50"
                                     )}
                                 >
-                                    {isActive && (
-                                        <Check
-                                            // Fixed smaller size for the checkmark
-                                            className="w-3.5 h-3.5 text-slate-800"
-                                            strokeWidth={2.5}
-                                        />
-                                    )}
                                     <Icon
-                                        // Fixed smaller size for the main icons (16px)
-                                        className="w-4 h-4 text-slate-800"
+                                        className="w-3.5 h-3.5 text-slate-800"
                                         strokeWidth={2}
                                     />
                                 </button>

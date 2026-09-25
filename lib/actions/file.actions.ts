@@ -150,10 +150,7 @@ export async function getTotalSpaceUsed() {
     }>("/cloudence/files/usage");
 }
 
-/**
- * Combined dashboard fetch — replaces two separate round-trips to `getFiles` + `getTotalSpaceUsed`.
- * One HTTP request, one network RTT, same data.
- */
+
 export async function getDashboardData() {
     const result = await request<{
         recentFiles: Record<string, unknown>[];

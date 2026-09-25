@@ -59,9 +59,7 @@ export function SecurityArchitecture() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-4">
-            Security & Physical Privacy
-          </div>
+          
           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-poppins">
             Engineered to keep your files and your identity safe.
           </h2>
