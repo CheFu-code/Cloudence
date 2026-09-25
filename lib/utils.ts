@@ -233,17 +233,23 @@ export const getOptimizedThumbnailUrl = (
 ): string => {
     if (!url || typeof url !== "string") return url;
 
-    // If not Cloudinary or already has a transformation applied, return as is
+    // 1. Check if it's a valid Cloudinary URL
     if (!url.includes("res.cloudinary.com") || !url.includes("/upload/")) return url;
+    
+    // 2. Skip if transformations are already applied
     if (url.includes("/c_thumb") || url.includes("/c_fill") || url.includes("/c_scale")) return url;
 
-    // Apply transformation
-    let optimizedUrl = url.replace(
+    // 3. CRITICAL: Strip the Cloudinary security signature (e.g., /s--1UKJoxqE--/)
+    // Without this, manually adding transformations causes a 400 Bad Request error.
+    const urlWithoutSignature = url.replace(/\/s--[\w-]+--\//, "/");
+
+    // 4. Apply the required thumbnail transformations
+    let optimizedUrl = urlWithoutSignature.replace(
         "/upload/",
         `/upload/c_thumb,w_${width},h_${height},g_auto,q_auto,f_auto/`
     );
 
-    // CRITICAL: Force Cloudinary to serve the PDF as a JPG so the <img> tag can render it
+    // 5. Force Cloudinary to serve the first page of a PDF as a JPG
     if (isPdf) {
         optimizedUrl = optimizedUrl.replace(/\.pdf(\?.*)?$/i, ".jpg$1");
     }
