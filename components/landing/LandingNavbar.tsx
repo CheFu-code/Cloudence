@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
-import { BrandLogo } from "./BrandLogo";
-import { ArrowRight, Menu, X, LayoutDashboard } from "lucide-react";
-import { getCurrentUser } from "@/lib/actions/user.actions";
-import FileUploader from "../FileUploader";
 import { navLinks } from "@/constants";
+import { getCurrentUser } from "@/lib/actions/user.actions";
+import { ArrowRight, LayoutDashboard, Menu, X } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import FileUploader from "../FileUploader";
+import { BrandLogo } from "./BrandLogo";
+
 
 export interface LandingUser {
     $id?: string;
@@ -54,6 +55,8 @@ export function LandingNavbar({ user: initialUser }: LandingNavbarProps = {}) {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+
+
     const isAuthenticated = Boolean(user);
 
     return (
@@ -92,6 +95,7 @@ export function LandingNavbar({ user: initialUser }: LandingNavbarProps = {}) {
                                     <LayoutDashboard className="w-4 h-4 text-teal-600" />
                                     <span>Dashboard</span>
                                 </Link>
+                                
                                 <FileUploader ownerId={user?.$id as string} accountId={user?.accountId as string} />
                             </>
                         ) : (

@@ -41,7 +41,7 @@ export function BrandLogo({ className = "", showBadge = false }: BrandLogoProps)
           </span>
           {showBadge && (
             <span className="px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase bg-teal-50 text-teal-700 border border-teal-200/60 rounded">
-              v1.0
+              v1.0.1
             </span>
           )}
         </div>
