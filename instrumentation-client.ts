@@ -5,30 +5,36 @@
 import * as Sentry from "@sentry/nextjs";
 
 Sentry.init({
-  dsn:
-    process.env.NEXT_PUBLIC_SENTRY_DSN ||
-    "https://74ce7cd267e95c3e619883c18ff0b4a7@o4512011915296768.ingest.de.sentry.io/4512129507393616",
+    dsn:
+        process.env.NEXT_PUBLIC_SENTRY_DSN ||
+        "https://74ce7cd267e95c3e619883c18ff0b4a7@o4512011915296768.ingest.de.sentry.io/4512129507393616",
 
-  // Add optional integrations for additional features
-  integrations: [Sentry.replayIntegration()],
+    // Add optional integrations for additional features
+    integrations: [
+        Sentry.replayIntegration({
+            maskAllText: false,
+            maskAllInputs: false,
+            blockAllMedia: false,
+        }),
+    ],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 0.1,
+    // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
+    tracesSampleRate: 0.1,
 
-  // Define how likely Replay events are sampled.
-  // This sets the sample rate to be 10%. You may want this to be 100% while
-  // in development and sample at a lower rate in production
-  replaysSessionSampleRate: 0.1,
+    // Define how likely Replay events are sampled.
+    // This sets the sample rate to be 10%. You may want this to be 100% while
+    // in development and sample at a lower rate in production
+    replaysSessionSampleRate: 0.1,
 
-  // Define how likely Replay events are sampled when an error occurs.
-  replaysOnErrorSampleRate: 1.0,
+    // Define how likely Replay events are sampled when an error occurs.
+    replaysOnErrorSampleRate: 1.0,
 
-  dataCollection: {
-    // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
-    // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#dataCollection
-    // userInfo: false,
-    // httpBodies: [],
-  },
+    dataCollection: {
+        // To disable sending user data and HTTP bodies, uncomment the lines below. For more info visit:
+        // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#dataCollection
+        // userInfo: false,
+        // httpBodies: [],
+    },
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
