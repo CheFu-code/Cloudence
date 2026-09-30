@@ -73,7 +73,7 @@ export function FeatureHighlights() {
               className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div>
-                <div className="mb-4">
+                <div className="hidden sm:block mb-4">
                   <span className={`text-[11px] font-mono uppercase px-2.5 py-1 rounded-md border font-semibold ${feature.badgeColor}`}>
                     {feature.category}
                   </span>
