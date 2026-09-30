@@ -2,17 +2,15 @@ import { withSentryConfig } from "@sentry/nextjs/config";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  compress: true,
+  poweredByHeader: false,
   experimental: {
+    optimizePackageImports: ["lucide-react", "@radix-ui/react-icons", "recharts"],
     serverActions: {
       bodySizeLimit: "5MB", // Uploads are now multipart; server actions only handle small JSON payloads
     },
   },
+
   images: {
     remotePatterns: [
       {

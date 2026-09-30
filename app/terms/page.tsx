@@ -2,9 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Cloudence",
-  description: "Cloudence terms of service.",
+  title: "Terms of Service",
+  description: "Terms governing use of Cloudence, a file storage and organization platform operated by CHEFU TECHNOLOGIES (Pty) Ltd.",
+  alternates: {
+    canonical: "/terms",
+  },
+  openGraph: {
+    title: "Terms of Service | Cloudence",
+    description: "Terms governing use of Cloudence by CHEFU TECHNOLOGIES (Pty) Ltd.",
+    url: "https://cloudence.chefu.co.za/terms",
+    type: "website",
+  },
 };
+
 
 export default function TermsPage() {
   return (

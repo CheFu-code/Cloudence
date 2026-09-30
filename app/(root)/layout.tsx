@@ -14,17 +14,27 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
   if (!currentUser) return redirect("/sign-in");
 
   return (
-    <main className="flex h-screen">
+    <div className="flex h-screen">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-white focus:text-teal-700 focus:rounded-md focus:shadow-md"
+      >
+        Skip to main content
+      </a>
+
       <Sidebar {...currentUser} />
 
       <section className="flex h-full flex-1 flex-col">
         <MobileNavigation {...currentUser} />
         <Header userId={currentUser.$id} accountId={currentUser.accountId} />
-        <div className="main-content">{children}</div>
+        <main id="main-content" className="main-content" role="main">
+          {children}
+        </main>
       </section>
 
       <Toaster />
-    </main>
+    </div>
   );
+
 };
 export default Layout;

@@ -4,9 +4,17 @@ import { navLinks } from "@/constants";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import { ArrowRight, LayoutDashboard, Menu, X } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import FileUploader from "../FileUploader";
 import { BrandLogo } from "./BrandLogo";
+
+const FileUploader = dynamic(() => import("../FileUploader"), {
+    ssr: false,
+    loading: () => (
+        <div className="h-[44px] w-[110px] rounded-full bg-slate-100 animate-pulse" />
+    ),
+});
+
 
 
 export interface LandingUser {
@@ -129,6 +137,8 @@ export function LandingNavbar({ user: initialUser }: LandingNavbarProps = {}) {
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                             className="p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 focus:outline-none"
                             aria-label="Toggle Navigation Menu"
+                            aria-expanded={isMobileMenuOpen}
+                            aria-controls="mobile-nav-drawer"
                         >
                             {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
                         </button>
@@ -138,7 +148,8 @@ export function LandingNavbar({ user: initialUser }: LandingNavbarProps = {}) {
 
             {/* Mobile Drawer */}
             {isMobileMenuOpen && (
-                <div className="sm:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-3 shadow-lg">
+                <div id="mobile-nav-drawer" className="sm:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-6 space-y-3 shadow-lg">
+
                     <div className="flex flex-col space-y-2">
                         {navLinks.map((link) => (
                             <a

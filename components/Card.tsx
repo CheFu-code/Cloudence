@@ -13,43 +13,46 @@ const Card = ({ file, view = "grid" }: CardProps) => {
     const ownerInitial = file.owner.fullName ? file.owner.fullName.charAt(0).toUpperCase() : "U";
 
     return (
-        <a
-            href={file.url}
-            target="_blank"
-            rel="noopener noreferrer"
+        <div
             className={cn(
-                "transition-all w-full block",
+                "transition-all w-full",
                 view === "grid" 
                     ? "file-card" 
-                    : "grid grid-cols-4 sm:grid-cols-12 items-center gap-4 border-b border-light-100 px-4 py-3 hover:bg-gray-50/70 cursor-pointer"
+                    : "grid grid-cols-4 sm:grid-cols-12 items-center gap-4 border-b border-light-100 px-4 py-3 hover:bg-gray-50/70"
             )}
         >
-            
             {view === "grid" && (
                 <>
-                    <div className="flex justify-between">
-                        <Thumbnail
-                            type={file.type}
-                            extension={file.extension}
-                            url={file.url}
-                            className="!size-20"
-                            imageClassName="!size-11"
-                        />
-
-                        <div
-                            className="flex flex-col items-end justify-between"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                            }}
+                    <div className="flex justify-between items-start">
+                        <a
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
+                            aria-label={`Open ${file.name}`}
                         >
+                            <Thumbnail
+                                type={file.type}
+                                extension={file.extension}
+                                url={file.url}
+                                className="!size-20"
+                                imageClassName="!size-11"
+                            />
+                        </a>
+
+                        <div className="flex flex-col items-end justify-between h-20">
                             <ActionDropdown file={file} />
                             <p className="body-1">{convertFileSize(file.size)}</p>
                         </div>
                     </div>
 
-                    <div className="file-card-details">
-                        <p className="subtitle-2 line-clamp-1">{file.name}</p>
+                    <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="file-card-details block group"
+                    >
+                        <p className="subtitle-2 line-clamp-1 group-hover:text-brand transition-colors">{file.name}</p>
                         <FormattedDateTime
                             date={file.$createdAt}
                             className="body-2 text-light-100"
@@ -57,15 +60,19 @@ const Card = ({ file, view = "grid" }: CardProps) => {
                         <p className="caption line-clamp-1 text-light-200">
                             By: {file.owner.fullName}
                         </p>
-                    </div>
+                    </a>
                 </>
             )}
 
-           
             {view === "list" && (
                 <>
                     {/* 1. Name Column */}
-                    <div className="col-span-3 sm:col-span-5 lg:col-span-4 flex items-center gap-3 overflow-hidden pr-2">
+                    <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="col-span-3 sm:col-span-5 lg:col-span-4 flex items-center gap-3 overflow-hidden pr-2 group"
+                    >
                         <Thumbnail
                             type={file.type}
                             extension={file.extension}
@@ -73,10 +80,10 @@ const Card = ({ file, view = "grid" }: CardProps) => {
                             className="!size-8 shrink-0 bg-transparent"
                             imageClassName="!size-5"
                         />
-                        <p className="subtitle-2 truncate text-dark-200 font-medium">
+                        <p className="subtitle-2 truncate text-dark-200 font-medium group-hover:text-brand transition-colors">
                             {file.name}
                         </p>
-                    </div>
+                    </a>
 
                     {/* 2. Date Column (Hidden on mobile) */}
                     <div className="hidden sm:flex sm:col-span-4 lg:col-span-3 items-center text-sm text-light-200 truncate">
@@ -99,19 +106,13 @@ const Card = ({ file, view = "grid" }: CardProps) => {
                     </div>
 
                     {/* 5. Actions Column (Far right) */}
-                    <div 
-                        className="col-span-1 flex justify-end"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                        }}
-                    >
+                    <div className="col-span-1 flex justify-end">
                         <ActionDropdown file={file} />
                     </div>
                 </>
             )}
-        </a>
+        </div>
     );
 };
 
-export default Card;
+export default Card;

@@ -2,9 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Cloudence",
-  description: "Cloudence privacy policy.",
+  title: "Privacy Policy",
+  description: "Cloudence privacy policy and data governance practices by CHEFU TECHNOLOGIES (Pty) Ltd.",
+  alternates: {
+    canonical: "/privacy",
+  },
+  openGraph: {
+    title: "Privacy Policy | Cloudence",
+    description: "Cloudence privacy policy and data governance practices.",
+    url: "https://cloudence.chefu.co.za/privacy",
+    type: "website",
+  },
 };
+
 
 export default function PrivacyPage() {
   return (

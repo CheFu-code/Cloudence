@@ -27,13 +27,16 @@ export const Thumbnail = ({
         ? getOptimizedThumbnailUrl(url, 160, 160, isPdf)
         : getFileIcon(extension, type);
 
+    const altText = extension ? `${extension.toUpperCase()} file preview` : "File preview";
+
     return (
         <figure className={cn("thumbnail flex items-center justify-center overflow-hidden", className)}>
             <Image
                 src={imageSrc}
-                alt="thumbnail"
+                alt={altText}
                 width={100}
                 height={100}
+                sizes="80px"
                 className={cn(
                     "size-8 object-contain",
                     imageClassName,
@@ -42,5 +45,6 @@ export const Thumbnail = ({
             />
         </figure>
     );
+
 };
 export default Thumbnail;

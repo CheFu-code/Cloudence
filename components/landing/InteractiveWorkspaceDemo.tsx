@@ -55,8 +55,10 @@ const INITIAL_FILES: MockFile[] = [
   },
 ];
 
+type DemoNavTab = "dashboard" | "documents" | "images" | "media" | "others";
+
 export function InteractiveWorkspaceDemo() {
-  const [activeNav, setActiveNav] = useState<"dashboard" | "documents" | "images" | "media" | "others">("dashboard");
+  const [activeNav, setActiveNav] = useState<DemoNavTab>("dashboard");
   const [searchQuery, setSearchQuery] = useState("");
   const [files, setFiles] = useState<MockFile[]>(INITIAL_FILES);
   const [activeDropdownFileId, setActiveDropdownFileId] = useState<string | null>(null);
@@ -71,13 +73,14 @@ export function InteractiveWorkspaceDemo() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  const navItems = [
+  const navItems: Array<{ id: DemoNavTab; name: string; icon: string }> = [
     { id: "dashboard", name: "Dashboard", icon: "/assets/icons/dashboard.svg" },
     { id: "documents", name: "Documents", icon: "/assets/icons/documents.svg" },
     { id: "images", name: "Images", icon: "/assets/icons/images.svg" },
     { id: "media", name: "Media", icon: "/assets/icons/video.svg" },
     { id: "others", name: "Others", icon: "/assets/icons/others.svg" },
   ];
+
 
   const filteredFiles = files.filter((f) => {
     const matchesSearch = f.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -190,7 +193,7 @@ export function InteractiveWorkspaceDemo() {
                       <button
                         key={item.id}
                         onClick={() => {
-                          setActiveNav(item.id as any);
+                          setActiveNav(item.id);
                           setActiveDropdownFileId(null);
                         }}
                         className={`flex items-center gap-3.5 w-full px-5 py-3 rounded-full text-sm font-semibold transition-all text-left ${isActive
@@ -264,7 +267,7 @@ export function InteractiveWorkspaceDemo() {
                     <button
                       key={item.id}
                       onClick={() => {
-                        setActiveNav(item.id as any);
+                        setActiveNav(item.id);
                         setActiveDropdownFileId(null);
                       }}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold shrink-0 transition-all ${isActive

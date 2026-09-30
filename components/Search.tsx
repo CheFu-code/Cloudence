@@ -25,13 +25,26 @@ const Search = () => {
       if (debouncedQuery.length === 0) {
         setResults([]);
         setOpen(false);
-        return router.push(path.replace(searchParams.toString(), ""));
+        if (searchParams.has("query")) {
+          const params = new URLSearchParams(searchParams.toString());
+          params.delete("query");
+          const remaining = params.toString();
+          router.push(remaining ? `${path}?${remaining}` : path);
+        }
+        return;
       }
 
-      const files = await getFiles({ types: [], searchText: debouncedQuery, limit: 8 });
-      if (isCurrent) {
-        setResults(files.documents);
-        setOpen(true);
+      try {
+        const files = await getFiles({ types: [], searchText: debouncedQuery, limit: 8 });
+        if (isCurrent) {
+          setResults(files.documents);
+          setOpen(true);
+        }
+      } catch {
+        if (isCurrent) {
+          setResults([]);
+          setOpen(false);
+        }
       }
     };
 
@@ -39,7 +52,7 @@ const Search = () => {
     return () => {
       isCurrent = false;
     };
-  }, [debouncedQuery]);
+  }, [debouncedQuery, path, router, searchParams]);
 
   useEffect(() => {
     if (!searchQuery) {
@@ -51,26 +64,29 @@ const Search = () => {
     setOpen(false);
     setResults([]);
 
-    router.push(
-      `/${file.type === "video" || file.type === "audio" ? "media" : file.type + "s"}?query=${query}`,
-    );
+    const routeType = file.type === "video" || file.type === "audio" ? "media" : `${file.type}s`;
+    router.push(`/${routeType}?query=${encodeURIComponent(query)}`);
   };
 
   return (
-    <div className="search">
+    <div className="search" role="search">
       <div className="search-input-wrapper">
         <Image
           src="/assets/icons/search.svg"
-          alt="Search"
+          alt=""
+          aria-hidden="true"
           width={24}
           height={24}
         />
         <Input
           value={query}
           placeholder="Search..."
+          aria-label="Search files"
+          aria-expanded={open}
           className="search-input"
           onChange={(e) => setQuery(e.target.value)}
         />
+
 
         {open && (
           <ul className="search-result">

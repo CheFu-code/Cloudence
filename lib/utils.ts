@@ -172,8 +172,24 @@ export const getFileIcon = (
     }
 };
 
+export interface QuotaCategory {
+    size: number;
+    latestDate: string;
+}
+
+export interface UsageQuota {
+    image: QuotaCategory;
+    document: QuotaCategory;
+    video: QuotaCategory;
+    audio: QuotaCategory;
+    other: QuotaCategory;
+    used: number;
+    all: number;
+}
+
 // DASHBOARD UTILS
-export const getUsageSummary = (totalSpace: any) => {
+export const getUsageSummary = (totalSpace: UsageQuota) => {
+
     return [
         {
             title: "Documents",
