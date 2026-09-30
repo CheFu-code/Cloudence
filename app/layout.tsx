@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from 'next/font/google'
 import { Analytics } from "@vercel/analytics/next"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -22,13 +23,12 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body
-                className={`${poppins.variable} font-poppins antialiased`}
-            >
+            <body className={`${poppins.variable} font-poppins antialiased`}>
                 <TooltipProvider>
                     {children}
-                    <Analytics />
                 </TooltipProvider>
+                <Analytics />
+                <SpeedInsights />
             </body>
         </html>
     );
