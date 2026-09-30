@@ -9,7 +9,6 @@ interface BrandLogoProps {
 export function BrandLogo({ className = "", showBadge = false }: BrandLogoProps) {
   return (
     <Link href="/" className={`inline-flex items-center gap-2.5 group focus:outline-none ${className}`}>
-      {/* Cloudence Geometric Brand Emblem */}
       <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 shadow-sm shadow-teal-900/10 group-hover:scale-105 transition-transform duration-200">
         <svg
           viewBox="0 0 32 32"
@@ -17,20 +16,22 @@ export function BrandLogo({ className = "", showBadge = false }: BrandLogoProps)
           xmlns="http://www.w3.org/2000/svg"
           className="w-5 h-5 text-white"
         >
-          <path
-            d="M21.5 14.5C21.5 11.4624 19.0376 9 16 9C13.4357 9 11.2727 10.7582 10.6552 13.1257C8.5833 13.3857 7 15.1384 7 17.25C7 19.5972 8.90279 21.5 11.25 21.5H21C23.2091 21.5 25 19.7091 25 17.5C25 15.8924 23.9538 14.5292 22.4828 14.0729"
-            stroke="currentColor"
-            strokeWidth="2.25"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path
-            d="M16 15V22M16 22L13.5 19.5M16 22L18.5 19.5"
-            stroke="currentColor"
-            strokeWidth="2.25"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <g transform="translate(0 0.75)">
+            <path
+              d="M21.5 14.5C21.5 11.4624 19.0376 9 16 9C13.4357 9 11.2727 10.7582 10.6552 13.1257C8.5833 13.3857 7 15.1384 7 17.25C7 19.5972 8.90279 21.5 11.25 21.5H21C23.2091 21.5 25 19.7091 25 17.5C25 15.8924 23.9538 14.5292 22.4828 14.0729"
+              stroke="currentColor"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M16 11.75V18.75M16 18.75L13.5 16.25M16 18.75L18.5 16.25"
+              stroke="currentColor"
+              strokeWidth="2.25"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </g>
         </svg>
       </div>
 
