@@ -17,9 +17,6 @@ export function CTASection() {
           />
 
           <div className="relative z-10 max-w-2xl">
-            <span className="text-xs font-mono uppercase font-semibold text-teal-400 tracking-wider">
-              READY TO GET ORGANIZED?
-            </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight font-poppins mt-3 leading-tight">
               A quieter home for all your busy files.
             </h2>
