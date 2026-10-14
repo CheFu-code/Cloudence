@@ -1,26 +1,13 @@
 "use server";
 
-import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { sessionHeaders } from "@/lib/session-headers";
 
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.chefu.co.za";
-const APP_ID = "cloudence";
 
 function apiUrl(path: string) {
     return `${API_BASE_URL.replace(/\/$/, "")}${path.startsWith("/") ? path : `/${path}`}`;
-}
-
-/** Read session cookies once and return auth headers. */
-async function sessionHeaders(): Promise<Record<string, string>> {
-    const cookieStore = await cookies();
-    const sessionCookies = cookieStore
-        .getAll()
-        .filter((c) => c.name === "__session" || c.name === "__session_meta")
-        .map((c) => `${c.name}=${c.value}`)
-        .join("; ");
-
-    return { Cookie: sessionCookies, "x-chefu-app": APP_ID };
 }
 
 /** JSON fetch — adds Content-Type automatically. */

@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { cache } from "react";
+import { sessionHeaders } from "@/lib/session-headers";
 
 const CHEFU_API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.chefu.co.za";
@@ -87,11 +88,11 @@ export async function getCurrentUser() {
 
 export async function signOutUser() {
   try {
-    const cookieHeader = await getChefuCookieHeader();
+    const authHeaders = await sessionHeaders();
 
     await fetch(apiUrl("/auth/session?global=true"), {
       credentials: "include",
-      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      headers: authHeaders,
       method: "DELETE",
     });
   } catch {

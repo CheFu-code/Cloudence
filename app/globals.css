@@ -729,7 +729,7 @@
   }
 
   .error-toast {
-    @apply bg-red !rounded-[10px] !important;
+    @apply bg-error border-error text-white !rounded-[10px] !important;
   }
 
   /* Header */
