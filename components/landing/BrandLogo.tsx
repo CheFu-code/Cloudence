@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import { version } from "@/package.json";
 
 interface BrandLogoProps {
   className?: string;
@@ -43,7 +44,7 @@ export function BrandLogo({ className = "", showBadge = false, href = "/" }: Bra
           </span>
           {showBadge && (
             <span className="px-1.5 py-0.5 text-[10px] font-medium tracking-wide uppercase bg-teal-50 text-teal-700 border border-teal-200/60 rounded">
-              v1.0.1
+              v{version}
             </span>
           )}
         </div>

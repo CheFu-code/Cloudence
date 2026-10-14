@@ -3,7 +3,6 @@ import React from "react";
 export function FeatureHighlights() {
   const features = [
     {
-      category: "DISCOVERY",
       title: "Instant Search with Zero Lag",
       description:
         "Locate spreadsheets, high-res photos, or project contracts in milliseconds. Built with responsive client debouncing that queries across titles and extensions without page reloads.",
@@ -15,7 +14,6 @@ export function FeatureHighlights() {
       badgeColor: "bg-teal-50 text-teal-800 border-teal-200",
     },
     {
-      category: "ORGANIZATION",
       title: "Category-Based Storage, Not Folder Chaos",
       description:
         "Traditional folder hierarchies end up in forgotten nested chaos. Cloudence automatically classifies every upload into Documents, Images, Media, and Archives with clear capacity indicators.",
@@ -27,7 +25,6 @@ export function FeatureHighlights() {
       badgeColor: "bg-blue-50 text-blue-800 border-blue-200",
     },
     {
-      category: "COLLABORATION",
       title: "Granular Sharing & Link Controls",
       description:
         "Invite collaborators directly by email or copy protected direct links. Inspect which team members have access to each file and revoke permissions whenever needed.",
@@ -39,7 +36,6 @@ export function FeatureHighlights() {
       badgeColor: "bg-indigo-50 text-indigo-800 border-indigo-200",
     },
     {
-      category: "SECURITY & AUTH",
       title: "Protected by our SSO Unified Identity",
       description:
         "Tied into our central authentication engine. No vulnerable passwords to reuse or leak: sign in with time-sensitive 6-digit one-time passwords delivered securely to your email.",
@@ -73,11 +69,7 @@ export function FeatureHighlights() {
               className="bg-white rounded-2xl p-7 sm:p-8 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div>
-                <div className="hidden sm:block mb-4">
-                  <span className={`text-[11px] font-mono uppercase px-2.5 py-1 rounded-md border font-semibold ${feature.badgeColor}`}>
-                    {feature.category}
-                  </span>
-                </div>
+                
 
                 <h3 className="text-xl font-bold text-slate-900 tracking-tight mb-3 font-poppins">
                   {feature.title}
