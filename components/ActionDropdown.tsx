@@ -30,6 +30,11 @@ import {
 import { usePathname } from "next/navigation";
 import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
 import { useToast } from "@/hooks/use-toast";
+import {
+  invalidEmails,
+  localDateTime,
+  normalizeEmails,
+} from "@/lib/file-input";
 
 const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,6 +43,20 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
+  const [expiry, setExpiry] = useState(localDateTime(file.shareExpiresAt));
+  const invalid = invalidEmails(emails);
+  const emailError = invalid.length
+    ? `Check these email addresses: ${invalid.join(", ")}`
+    : "";
+  const expiryError =
+    expiry &&
+    (!Number.isFinite(Date.parse(expiry)) || Date.parse(expiry) <= Date.now())
+      ? "Choose a future date and time, or clear it for no expiration."
+      : "";
+  const hasShareChanges =
+    normalizeEmails(emails).length > 0 ||
+    expiry !== localDateTime(file.shareExpiresAt);
+  const canShare = !emailError && !expiryError && hasShareChanges;
   const { toast } = useToast();
 
   const path = usePathname();
@@ -48,18 +67,35 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
     setAction(null);
     setName(file.name);
     setEmails([]);
+    setExpiry(localDateTime(file.shareExpiresAt));
   };
 
   const handleAction = async () => {
-    if (!action) return;
+    if (
+      !action ||
+      isLoading ||
+      !file.isOwner ||
+      (action.value === "share" && !canShare)
+    )
+      return;
     setIsLoading(true);
 
     const actions = {
       rename: () =>
         renameFile({ fileId: file.$id, name, extension: file.extension, path }),
-      share: () => updateFileUsers({ fileId: file.$id, emails, path }),
-      delete: () =>
-        deleteFile({ fileId: file.$id, path }),
+      share: () =>
+        updateFileUsers({
+          fileId: file.$id,
+          addEmails: normalizeEmails(emails).length ? normalizeEmails(emails) : undefined,
+          path,
+          shareExpiresAt:
+            expiry === localDateTime(file.shareExpiresAt)
+              ? undefined
+              : expiry
+                ? new Date(expiry).toISOString()
+                : "",
+        }),
+      delete: () => deleteFile({ fileId: file.$id, path }),
     };
 
     try {
@@ -86,7 +122,8 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
     } catch (error) {
       toast({
         title: `${action.label} failed`,
-        description: error instanceof Error ? error.message : "Please try again.",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
         className: "error-toast",
       });
     } finally {
@@ -95,10 +132,15 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
   };
 
   const handleRemoveUser = async (email: string) => {
-    const updatedEmails = emails.filter((e) => e !== email);
+    if (isLoading || !file.isOwner) return;
+    setIsLoading(true);
 
     try {
-      const result = await updateFileUsers({ fileId: file.$id, emails: updatedEmails, path });
+      const result = await updateFileUsers({
+        fileId: file.$id,
+        removeEmails: [email],
+        path,
+      });
 
       if (result && "error" in result && result.error) {
         toast({
@@ -109,15 +151,20 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
         return;
       }
 
-      setEmails(updatedEmails);
-      toast({ title: "Share settings updated", description: `${email} was removed.` });
+      toast({
+        title: "Share settings updated",
+        description: `${email} was removed.`,
+      });
       closeAllModals();
     } catch (error) {
       toast({
         title: "Share update failed",
-        description: error instanceof Error ? error.message : "Please try again.",
+        description:
+          error instanceof Error ? error.message : "Please try again.",
         className: "error-toast",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -152,7 +199,10 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
     } catch (error) {
       toast({
         title: "Download failed",
-        description: error instanceof Error ? error.message : "Could not download file. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Could not download file. Please try again.",
         className: "error-toast",
       });
     }
@@ -185,6 +235,11 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
               file={file}
               onInputChange={setEmails}
               onRemove={handleRemoveUser}
+              disabled={isLoading}
+              emailError={emailError}
+              expiry={expiry}
+              onExpiryChange={setExpiry}
+              expiryError={expiryError}
             />
           )}
           {value === "delete" && (
@@ -196,13 +251,25 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
         </DialogHeader>
         {["rename", "delete", "share"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
-            <Button disabled={isLoading} onClick={closeAllModals} className="modal-cancel-button">
+            <Button
+              disabled={isLoading}
+              onClick={closeAllModals}
+              className="modal-cancel-button"
+            >
               Cancel
             </Button>
             <Button
-              disabled={isLoading}
+              disabled={
+                isLoading ||
+                (value === "share" && !canShare) ||
+                (value === "rename" && !name.trim())
+              }
               onClick={handleAction}
-              className={value === "delete" ? "modal-delete-button" : "modal-submit-button"}
+              className={
+                value === "delete"
+                  ? "modal-delete-button"
+                  : "modal-submit-button"
+              }
             >
               <p className="capitalize">{value}</p>
               {isLoading && (
@@ -243,51 +310,57 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
             {file.name}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {actionsDropdownItems.map((actionItem) => (
-            <DropdownMenuItem
-              key={actionItem.value}
-              className="shad-dropdown-item"
-              onClick={() => {
-                setAction(actionItem);
-                if (actionItem.value === "share") {
-                  setEmails([]);
-                }
+          {actionsDropdownItems
+            .filter(
+              (item) =>
+                file.isOwner || ["details", "download"].includes(item.value),
+            )
+            .map((actionItem) => (
+              <DropdownMenuItem
+                key={actionItem.value}
+                className="shad-dropdown-item"
+                onClick={() => {
+                  setAction(actionItem);
+                  if (actionItem.value === "share") {
+                    setEmails([]);
+                    setExpiry(localDateTime(file.shareExpiresAt));
+                  }
 
-                if (
-                  ["rename", "share", "delete", "details"].includes(
-                    actionItem.value,
-                  )
-                ) {
-                  setIsModalOpen(true);
-                }
-              }}
-            >
-              {actionItem.value === "download" ? (
-                <div
-                  onClick={handleDownload}
-                  className="flex items-center gap-2 cursor-pointer w-full"
-                >
-                  <Image
-                    src={actionItem.icon}
-                    alt={actionItem.label}
-                    width={30}
-                    height={30}
-                  />
-                  {actionItem.label}
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Image
-                    src={actionItem.icon}
-                    alt={actionItem.label}
-                    width={30}
-                    height={30}
-                  />
-                  {actionItem.label}
-                </div>
-              )}
-            </DropdownMenuItem>
-          ))}
+                  if (
+                    ["rename", "share", "delete", "details"].includes(
+                      actionItem.value,
+                    )
+                  ) {
+                    setIsModalOpen(true);
+                  }
+                }}
+              >
+                {actionItem.value === "download" ? (
+                  <div
+                    onClick={handleDownload}
+                    className="flex items-center gap-2 cursor-pointer w-full"
+                  >
+                    <Image
+                      src={actionItem.icon}
+                      alt={actionItem.label}
+                      width={30}
+                      height={30}
+                    />
+                    {actionItem.label}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={actionItem.icon}
+                      alt={actionItem.label}
+                      width={30}
+                      height={30}
+                    />
+                    {actionItem.label}
+                  </div>
+                )}
+              </DropdownMenuItem>
+            ))}
         </DropdownMenuContent>
       </DropdownMenu>
 

@@ -1,9 +1,7 @@
 "use server";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 
 import { cache } from "react";
-import { sessionHeaders } from "@/lib/session-headers";
 
 const CHEFU_API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.chefu.co.za";
@@ -83,21 +81,4 @@ export async function getCurrentUser() {
   } catch {
     return null;
   }
-}
-
-
-export async function signOutUser() {
-  try {
-    const authHeaders = await sessionHeaders();
-
-    await fetch(apiUrl("/auth/session?global=true"), {
-      credentials: "include",
-      headers: authHeaders,
-      method: "DELETE",
-    });
-  } catch {
-    // Intentionally swallow backend errors — we still redirect below.
-  }
-
-  redirect("/sign-in");
 }

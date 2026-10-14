@@ -4,11 +4,12 @@ import Link from "next/link";
 interface BrandLogoProps {
   className?: string;
   showBadge?: boolean;
+  href?: string;
 }
 
-export function BrandLogo({ className = "", showBadge = false }: BrandLogoProps) {
+export function BrandLogo({ className = "", showBadge = false, href = "/" }: BrandLogoProps) {
   return (
-    <Link href="/" className={`inline-flex items-center gap-2.5 group focus:outline-none ${className}`}>
+    <Link href={href} className={`inline-flex items-center gap-2.5 group focus:outline-none ${className}`}>
       <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 shadow-sm shadow-teal-900/10 group-hover:scale-105 transition-transform duration-200">
         <svg
           viewBox="0 0 32 32"

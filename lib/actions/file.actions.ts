@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { sessionHeaders } from "@/lib/session-headers";
+import { normalizeFile } from "@/lib/cloudence-file";
+import { normalizeEmails, renameFilename } from "@/lib/file-input";
 
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.chefu.co.za";
@@ -14,17 +16,15 @@ function apiUrl(path: string) {
 async function request<T>(
     path: string,
     init: RequestInit = {},
-    headers?: Record<string, string>,
 ): Promise<T> {
-    const authHeaders = headers ?? (await sessionHeaders());
-    const isFormData = init.body instanceof FormData;
+    const authHeaders = await sessionHeaders();
 
     const response = await fetch(apiUrl(path), {
         ...init,
         cache: "no-store",
         headers: {
             ...authHeaders,
-            ...(isFormData ? {} : { "Content-Type": "application/json" }),
+            "Content-Type": "application/json",
             ...(init.headers || {}),
         },
     });
@@ -43,59 +43,12 @@ async function request<T>(
 async function safeRequest<T = Record<string, unknown>>(
     path: string,
     init: RequestInit = {},
-    headers?: Record<string, string>,
 ): Promise<T | { error: string }> {
     try {
-        return await request<T>(path, init, headers);
+        return await request<T>(path, init);
     } catch (err) {
         return { error: err instanceof Error ? err.message : "Something went wrong. Please try again." };
     }
-}
-
-/**
- * Strict allowlist — only the 9 fields the UI actually renders are forwarded
- * across the RSC serialisation boundary. This strips sha256, ownerId, publicId,
- * isDeleted, deletedAt, deletedBy, resourceType, signedUrl, etc. from every
- * page payload, reducing per-file RSC JSON size by ~35%.
- */
-function normalizeFile(file: Record<string, unknown>): CloudenceFile {
-    return {
-        $id: String(file.id ?? ""),
-        $createdAt: String(file.createdAt ?? ""),
-        $updatedAt: String(file.updatedAt ?? ""),
-        name: String(file.name ?? ""),
-        type: (file.type as CloudenceFile["type"]) ?? "other",
-        extension: String(file.extension ?? ""),
-        // Prefer the pre-computed signedUrl stored in Firestore; fall back to raw url.
-        url: String((file.signedUrl as string) || (file.url as string) || ""),
-        size: Number(file.size ?? 0),
-        owner: (file.owner as CloudenceFile["owner"]) ?? { id: "", fullName: "", email: "" },
-        users: Array.isArray(file.users) ? (file.users as string[]) : [],
-        shareExpiresAt: file.shareExpiresAt ? String(file.shareExpiresAt) : undefined,
-    };
-}
-
-export async function uploadFile({ file, path }: UploadFileProps) {
-    // Hoist session headers once — reused for the single request below.
-    const authHeaders = await sessionHeaders();
-
-    // Send as binary multipart/form-data — no base64 encode/decode, no +33% size,
-    // no full-file arrayBuffer() RAM allocation. The browser streams the binary
-    // directly and fetch sets the correct Content-Type + boundary automatically.
-    const formData = new FormData();
-    formData.append("file", file, file.name);
-    // Pass filename explicitly so the backend sees it even if originalname is percent-encoded.
-    formData.append("name", file.name);
-
-    const result = await safeRequest<Record<string, unknown>>(
-        "/cloudence/files",
-        { method: "POST", body: formData },
-        authHeaders,
-    );
-
-    if ("error" in result) return result;
-    revalidatePath(path);
-    return normalizeFile(result);
 }
 
 export async function getFiles({
@@ -159,8 +112,9 @@ export async function getDashboardData() {
 }
 
 export async function renameFile({ fileId, name, extension, path }: RenameFileProps) {
+    if (!name.trim()) return { error: "A file name is required." };
     const result = await safeRequest<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
-        body: JSON.stringify({ name: `${name}.${extension}` }),
+        body: JSON.stringify({ name: renameFilename(name, extension) }),
         method: "PATCH",
     });
 
@@ -169,9 +123,14 @@ export async function renameFile({ fileId, name, extension, path }: RenameFilePr
     return normalizeFile(result);
 }
 
-export async function updateFileUsers({ fileId, emails, path }: UpdateFileUsersProps) {
+export async function updateFileUsers({ fileId, emails, addEmails, removeEmails, path, shareExpiresAt }: UpdateFileUsersProps) {
     const result = await safeRequest<Record<string, unknown>>(`/cloudence/files/${fileId}`, {
-        body: JSON.stringify({ users: emails }),
+        body: JSON.stringify({
+            ...(emails !== undefined ? { users: normalizeEmails(emails) } : {}),
+            ...(addEmails !== undefined ? { addUsers: normalizeEmails(addEmails) } : {}),
+            ...(removeEmails !== undefined ? { removeUsers: normalizeEmails(removeEmails) } : {}),
+            ...(shareExpiresAt !== undefined ? { shareExpiresAt } : {}),
+        }),
         method: "PATCH",
     });
 

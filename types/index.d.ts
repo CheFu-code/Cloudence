@@ -13,12 +13,6 @@ declare interface SearchParamProps {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-declare interface UploadFileProps {
-  file: File;
-  ownerId: string;
-  accountId: string;
-  path: string;
-}
 declare interface GetFilesProps {
   types: FileType[];
   searchText?: string;
@@ -33,8 +27,11 @@ declare interface RenameFileProps {
 }
 declare interface UpdateFileUsersProps {
   fileId: string;
-  emails: string[];
+  emails?: string[];
+  addEmails?: string[];
+  removeEmails?: string[];
   path: string;
+  shareExpiresAt?: string;
 }
 declare interface DeleteFileProps {
   fileId: string;
@@ -42,8 +39,6 @@ declare interface DeleteFileProps {
 }
 
 declare interface FileUploaderProps {
-  ownerId: string;
-  accountId: string;
   className?: string;
 }
 
@@ -69,6 +64,7 @@ declare interface ThumbnailProps {
 }
 
 declare interface CloudenceFile {
+  isOwner: boolean;
   $id: string;
   $createdAt: string;
   $updatedAt: string;

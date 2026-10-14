@@ -104,7 +104,7 @@ export function LandingNavbar({ user: initialUser }: LandingNavbarProps = {}) {
                                     <span>Dashboard</span>
                                 </Link>
                                 
-                                <FileUploader ownerId={user?.$id as string} accountId={user?.accountId as string} />
+                                <FileUploader />
                             </>
                         ) : (
                             <>

@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "@radix-ui/react-icons", "recharts"],
     serverActions: {
-      bodySizeLimit: "5MB", // Uploads are now multipart; server actions only handle small JSON payloads
+      bodySizeLimit: "5MB", // File bytes go directly to the API; actions handle metadata only.
     },
   },
 

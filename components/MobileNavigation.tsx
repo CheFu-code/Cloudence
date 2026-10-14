@@ -14,9 +14,9 @@ import { navItems, avatarPlaceholderUrl } from "@/constants";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import FileUploader from "@/components/FileUploader";
-import { signOutUser } from "@/lib/actions/user.actions";
 import { LogoutButton } from "@/components/LogoutButton";
 import { NavLinkPending } from "@/components/NavLinkPending";
+import { BrandLogo } from "@/components/landing/BrandLogo";
 
 interface Props {
   $id: string;
@@ -27,8 +27,6 @@ interface Props {
 }
 
 const MobileNavigation = ({
-  $id: ownerId,
-  accountId,
   fullName,
   avatar,
   email,
@@ -38,15 +36,7 @@ const MobileNavigation = ({
 
   return (
     <header className="mobile-header">
-      <Link href="/dashboard" prefetch={true}>
-      <Image
-        src="/assets/icons/logo-full-brand.svg"
-        alt="logo"
-        width={120}
-        height={52}
-        className="h-auto"
-      />
-      </Link>
+      <BrandLogo href="/dashboard" className="text-light-100" />
 
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger>
@@ -106,10 +96,8 @@ const MobileNavigation = ({
           <Separator className="my-5 bg-light-200/20" />
 
           <div className="flex flex-col justify-between gap-5 pb-5">
-            <FileUploader ownerId={ownerId} accountId={accountId} />
-            <form action={signOutUser}>
-              <LogoutButton mobile />
-            </form>
+            <FileUploader />
+            <LogoutButton mobile />
           </div>
         </SheetContent>
       </Sheet>
