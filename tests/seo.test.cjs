@@ -30,6 +30,17 @@ after(async () => {
   }
 });
 
+test('production image requests cannot bypass private file access through the optimizer', async () => {
+  for (const source of [
+    'https://res.cloudinary.com/demo/image/upload/s--signed--/chefu/cloudence/owner/file.png',
+    'https://api.chefu.co.za/cloudence/files/file-1/content?preview=1',
+  ]) {
+    const response = await fetch(`${baseUrl}/_next/image?url=${encodeURIComponent(source)}&w=128&q=75`);
+    assert.equal(response.status, 403);
+    assert.equal(response.headers.get('cache-control'), 'private, no-store');
+  }
+});
+
 test('homepage delivers headings, navigation, canonical, and consistent FAQ schema in its HTML', async () => {
   const response = await fetch(baseUrl);
   assert.equal(response.status, 200);

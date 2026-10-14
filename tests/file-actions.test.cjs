@@ -28,6 +28,22 @@ const validation = load('lib/upload-validation.ts', { '@/constants': { BLOCKED_E
 const { UploadError } = load('lib/client-api.ts', { '@/lib/cloudence-file': files });
 const example = { isOwner: true, id: 'file-1', name: 'report.pdf', extension: 'pdf', users: ['alice@example.com', 'bob@example.com'] };
 
+test('the image optimizer rejects old public file previews and protected API content', () => {
+  const { middleware } = load('middleware.ts');
+  const { NextRequest } = require('next/server');
+  const preview = (source) => middleware(new NextRequest(`https://cloudence.chefu.co.za/_next/image?url=${encodeURIComponent(source)}&w=128&q=75`));
+  for (const source of [
+    'https://res.cloudinary.com/demo/image/upload/s--signed--/c_fill,w_160/chefu/cloudence/owner/file.png',
+    'https://api.chefu.co.za/cloudence/files/file-1/content?preview=1',
+  ]) {
+    const response = preview(source);
+    assert.equal(response.status, 403);
+    assert.equal(response.headers.get('cache-control'), 'private, no-store');
+  }
+  assert.equal(preview('/assets/icons/logo.svg').status, 200);
+  assert.equal(preview('https://res.cloudinary.com/demo/image/upload/avatar.png').status, 200);
+});
+
 function actionHarness(overrides = {}) {
   let slots = [];
   let cursor = 0;
@@ -445,4 +461,20 @@ test('search initializes from the URL without clearing an existing filter', asyn
   assert.equal(useFileSearch().query, 'report');
   assert.deepEqual(navigations, []);
   assert.equal(queries[0].searchText, 'report');
+});
+
+test('protected previews bypass the shared image optimizer and never reuse old storage URLs', () => {
+  const element = (type, props) => ({ type, props });
+  const { Thumbnail } = load('components/Thumbnail.tsx', {
+    'react/jsx-runtime': { jsx: element, jsxs: element },
+    'next/image': 'Image',
+    '@/lib/utils': { cn: (...values) => values.join(' '), getFileIcon: () => '/assets/icons/file-pdf.svg', getOptimizedThumbnailUrl: () => { throw new Error('Private images must not enter the optimizer'); } },
+  });
+  const url = 'https://api.chefu.co.za/cloudence/files/file-1/content';
+  const image = Thumbnail({ type: 'image', extension: 'png', url }).props.children;
+  assert.equal(image.props.src, url + '?preview=1');
+  assert.equal(image.props.unoptimized, true);
+  const pdf = Thumbnail({ type: 'document', extension: 'pdf', url }).props.children;
+  assert.equal(pdf.props.src, '/assets/icons/file-pdf.svg');
+  assert.equal(files.normalizeFile({ ...example, url, signedUrl: 'https://res.cloudinary.com/old-public' }).url, url);
 });

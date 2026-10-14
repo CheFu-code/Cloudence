@@ -47,7 +47,7 @@ const nextConfig: NextConfig = {
               "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
               "worker-src 'self' blob:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' blob: data: https://res.cloudinary.com https://cdn.pixabay.com https://img.freepik.com",
+              "img-src 'self' blob: data: https://api.chefu.co.za https://res.cloudinary.com https://cdn.pixabay.com https://img.freepik.com",
               "font-src 'self' https://fonts.gstatic.com data:",
               "connect-src 'self' https://api.chefu.co.za https://*.sentry.io",
               "frame-ancestors 'none'",

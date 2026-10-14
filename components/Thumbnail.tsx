@@ -19,12 +19,13 @@ export const Thumbnail = ({
 }: Props) => {
     // Determine if it's a standard image or a PDF that needs a thumbnail
     const isImage = type === "image" && extension !== "svg";
-    const isPdf = extension === "pdf";
+    const isProtected = /\/cloudence\/files\/[^/]+\/content(?:\?|$)/.test(url);
+    const isPdf = extension === "pdf" && !isProtected;
     const shouldGeneratePreview = (isImage || isPdf) && url !== "";
 
     // Get the Cloudinary URL or fallback to the local SVG icon
     const imageSrc = shouldGeneratePreview
-        ? getOptimizedThumbnailUrl(url, 160, 160, isPdf)
+        ? isProtected ? `${url}${url.includes('?') ? '&' : '?'}preview=1` : getOptimizedThumbnailUrl(url, 160, 160, isPdf)
         : getFileIcon(extension, type);
 
     const altText = extension ? `${extension.toUpperCase()} file preview` : "File preview";
@@ -37,6 +38,7 @@ export const Thumbnail = ({
                 width={100}
                 height={100}
                 sizes="80px"
+                unoptimized={isProtected || url.startsWith('blob:')}
                 className={cn(
                     "size-8 object-contain",
                     imageClassName,
