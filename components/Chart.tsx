@@ -1,102 +1,37 @@
-"use client";
+import { convertFileSize } from "@/lib/utils";
 
-import {
-  Label,
-  PolarGrid,
-  PolarRadiusAxis,
-  RadialBar,
-  RadialBarChart,
-} from "recharts";
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { ChartConfig, ChartContainer } from "@/components/ui/chart";
-import { calculatePercentage, convertFileSize } from "@/lib/utils";
-
-const chartConfig = {
-  size: {
-    label: "Size",
-  },
-  used: {
-    label: "Used",
-    color: "white",
-  },
-} satisfies ChartConfig;
+const CAPACITY = 2 * 1024 * 1024 * 1024;
 
 export const Chart = ({ used = 0 }: { used: number }) => {
-  const safeUsed = Number.isFinite(Number(used)) ? Math.max(0, Number(used)) : 0;
-  const percentage = calculatePercentage(safeUsed);
-  const chartData = [{ storage: "used", 10: safeUsed, fill: "white" }];
+  const safeUsed = Number.isFinite(used) ? Math.max(0, used) : 0;
+  const percentage = Math.min(100, Number(((safeUsed / CAPACITY) * 100).toFixed(2)));
 
   return (
-    <Card className="chart">
-      <CardContent className="flex-1 p-0">
-        <ChartContainer config={chartConfig} className="chart-container">
-          <RadialBarChart
-            data={chartData}
-            startAngle={90}
-            endAngle={percentage + 90}
-            innerRadius={80}
-            outerRadius={110}
-          >
-            <PolarGrid
-              gridType="circle"
-              radialLines={false}
-              stroke="none"
-              className="polar-grid"
-              polarRadius={[86, 74]}
-            />
-            <RadialBar dataKey="storage" background cornerRadius={10} />
-            <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="chart-total-percentage"
-                        >
-                          {percentage
-                            ? percentage
-                                .toString()
-                                .replace(/^0+/, "")
-                            : "0"}
-                          %
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-white/70"
-                        >
-                          Space used
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
-            </PolarRadiusAxis>
-          </RadialBarChart>
-        </ChartContainer>
-      </CardContent>
-      <CardHeader className="chart-details">
-        <CardTitle className="chart-title">Available Storage</CardTitle>
-        <CardDescription className="chart-description">
-          {safeUsed ? convertFileSize(safeUsed) : "2GB"} / 2GB
-        </CardDescription>
-      </CardHeader>
-    </Card>
+    <section className="chart" aria-label="Storage usage">
+      <svg
+        viewBox="0 0 240 240" width={176} height={176}
+        className="chart-container shrink-0" role="img"
+        aria-label={`${percentage}% of 2 GB storage used`}
+      >
+        <circle cx={120} cy={120} r={86} fill="none" stroke="currentColor" strokeOpacity={0.2} strokeWidth={20} />
+        {percentage > 0 && (
+          <circle
+            cx={120} cy={120} r={86} fill="none" stroke="currentColor" strokeWidth={20}
+            pathLength={100} strokeDasharray={`${percentage} 100`} strokeLinecap="round"
+            transform="rotate(-90 120 120)"
+          />
+        )}
+        <text x={120} y={120} textAnchor="middle" dominantBaseline="middle" className="chart-total-percentage">
+          {percentage}%
+        </text>
+        <text x={120} y={148} textAnchor="middle" className="fill-white/70" fontSize={16}>
+          Space used
+        </text>
+      </svg>
+      <div className="chart-details">
+        <h2 className="chart-title">Available Storage</h2>
+        <p className="chart-description">{convertFileSize(safeUsed)} / 2 GB used</p>
+      </div>
+    </section>
   );
 };

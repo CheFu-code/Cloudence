@@ -1,7 +1,7 @@
 import Thumbnail from "@/components/Thumbnail";
 import { convertFileSize, cn } from "@/lib/utils";
 import FormattedDateTime from "@/components/FormattedDateTime";
-import ActionDropdown from "@/components/ActionDropdown";
+import ActionDropdown from "@/components/LazyFileActions";
 import { ViewType } from "./ViewToggle";
 
 interface CardProps {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { FAQS } from "@/lib/landing-content";
 import { LandingNavbar } from "@/components/landing/LandingNavbar";
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -65,8 +66,16 @@ const faqPageSchema = {
   })),
 };
 
-export default async function HomePage() {
-  const currentUser = await getCurrentUser();
+async function PersonalizedNavbar({ user }: { user: ReturnType<typeof getCurrentUser> }) {
+  return <LandingNavbar user={await user} />;
+}
+
+async function PersonalizedHero({ user }: { user: ReturnType<typeof getCurrentUser> }) {
+  return <HeroSection user={await user} />;
+}
+
+export default function HomePage() {
+  const currentUser = getCurrentUser();
 
   return (
     <>
@@ -84,12 +93,16 @@ export default async function HomePage() {
       />
       <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-teal-500 selection:text-white">
         {/* Sticky Navigation Bar */}
-        <LandingNavbar user={currentUser} />
+        <Suspense fallback={<LandingNavbar user={null} />}>
+          <PersonalizedNavbar user={currentUser} />
+        </Suspense>
 
         {/* Main Content Sections */}
         <main id="main-content">
           {/* 1. Hero with Value Proposition & Quick Proof */}
-          <HeroSection user={currentUser} />
+          <Suspense fallback={<HeroSection user={null} />}>
+            <PersonalizedHero user={currentUser} />
+          </Suspense>
 
           {/* 2. Live Interactive Workspace Sandbox */}
           <InteractiveWorkspaceDemo />

@@ -25,7 +25,7 @@ import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
 import { useFileActions } from "@/hooks/use-file-actions";
 import { localDateTime } from "@/lib/file-input";
 
-const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
+const ActionDropdown = ({ file, initialOpen = false }: { file: CloudenceFile; initialOpen?: boolean }) => {
   const {
     isModalOpen,
     setIsModalOpen,
@@ -47,7 +47,7 @@ const ActionDropdown = ({ file }: { file: CloudenceFile }) => {
     handleAction,
     handleRemoveUser,
     handleDownload,
-  } = useFileActions(file);
+  } = useFileActions(file, initialOpen);
 
   const renderDialogContent = () => {
     if (!action) return null;

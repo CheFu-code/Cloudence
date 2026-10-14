@@ -28,6 +28,42 @@ const validation = load('lib/upload-validation.ts', { '@/constants': { BLOCKED_E
 const { UploadError } = load('lib/client-api.ts', { '@/lib/cloudence-file': files });
 const example = { isOwner: true, id: 'file-1', name: 'report.pdf', extension: 'pdf', users: ['alice@example.com', 'bob@example.com'] };
 
+test('file actions render a small trigger until activated and open on the first click', () => {
+  let activated = false;
+  const jsx = (type, props) => ({ type, props });
+  const { default: LazyActions } = load('components/LazyFileActions.tsx', {
+    react: { useState: () => [activated, (value) => { activated = value; }] },
+    'react/jsx-runtime': { jsx, jsxs: jsx },
+    'next/image': 'Image',
+    'next/dynamic': (_loader, options) => {
+      assert.equal(options.ssr, false);
+      return 'LoadedActions';
+    },
+  });
+  const initial = LazyActions({ file: example });
+  assert.equal(initial.type, 'button');
+  assert.equal(initial.props['aria-expanded'], false);
+  initial.props.onClick();
+  const opened = LazyActions({ file: example });
+  assert.equal(opened.type, 'LoadedActions');
+  assert.equal(opened.props.initialOpen, true);
+  assert.equal(opened.props.file, example);
+});
+
+test('storage ring renders accurate accessible percentages without chart-library hydration', () => {
+  const jsx = (type, props) => ({ type, props });
+  const { Chart } = load('components/Chart.tsx', {
+    'react/jsx-runtime': { jsx, jsxs: jsx },
+    '@/lib/utils': { convertFileSize: (bytes) => `${bytes} bytes` },
+  });
+  for (const [used, expected] of [[0, 0], [1024 ** 3, 50], [3 * 1024 ** 3, 100], [-1, 0], [NaN, 0]]) {
+    const ring = Chart({ used }).props.children[0];
+    assert.equal(ring.type, 'svg');
+    assert.equal(ring.props['aria-label'], `${expected}% of 2 GB storage used`);
+    assert.equal(ring.props.children[1] ? ring.props.children[1].props.strokeDasharray : undefined, expected ? `${expected} 100` : undefined);
+  }
+});
+
 test('the image optimizer rejects old public file previews and protected API content', () => {
   const { middleware } = load('middleware.ts');
   const { NextRequest } = require('next/server');

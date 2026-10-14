@@ -14,9 +14,9 @@ import {
   normalizeEmails,
 } from "@/lib/file-input";
 
-export function useFileActions(file: CloudenceFile) {
+export function useFileActions(file: CloudenceFile, initialOpen = false) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(initialOpen);
   const [action, setAction] = useState<ActionType | null>(null);
   const [name, setName] = useState(file.name);
   const [isLoading, setIsLoading] = useState(false);

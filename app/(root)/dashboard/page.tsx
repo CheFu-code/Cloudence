@@ -6,7 +6,7 @@ import { Chart } from "@/components/Chart";
 import { FormattedDateTime } from "@/components/FormattedDateTime";
 import { Thumbnail } from "@/components/Thumbnail";
 import { Separator } from "@/components/ui/separator";
-import ActionDropdown from "@/components/ActionDropdown";
+import ActionDropdown from "@/components/LazyFileActions";
 import { convertFileSize, getUsageSummary } from "@/lib/utils";
 import { redirect } from "next/navigation";
 
