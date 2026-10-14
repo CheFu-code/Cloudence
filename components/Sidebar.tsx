@@ -1,11 +1,6 @@
-"use client";
-
-import Link from "next/link";
+import { WorkspaceNav } from "./WorkspaceNav";
 import Image from "next/image";
-import { navItems, avatarPlaceholderUrl } from "@/constants";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { NavLinkPending } from "@/components/NavLinkPending";
+import { avatarPlaceholderUrl } from "@/constants";
 import { BrandLogo } from "@/components/landing/BrandLogo";
 
 interface Props {
@@ -15,39 +10,11 @@ interface Props {
 }
 
 const Sidebar = ({ fullName, avatar, email }: Props) => {
-  const pathname = usePathname();
-
   return (
     <aside className="sidebar">
       <BrandLogo className="text-light-100" />
 
-      <nav className="sidebar-nav">
-        <ul className="flex flex-1 flex-col gap-6">
-          {navItems.map(({ url, name, icon }) => (
-            <Link key={name} href={url} prefetch={true} className="lg:w-full">
-              <li
-                className={cn(
-                  "sidebar-nav-item",
-                  pathname === url && "shad-active",
-                )}
-              >
-                <Image
-                  src={icon}
-                  alt={name}
-                  width={24}
-                  height={24}
-                  className={cn(
-                    "nav-icon",
-                    pathname === url && "nav-icon-active",
-                  )}
-                />
-                <p className="hidden lg:block">{name}</p>
-                <NavLinkPending />
-              </li>
-            </Link>
-          ))}
-        </ul>
-      </nav>
+      <WorkspaceNav />
 
       <Image
         src="/assets/images/files-2.png"

@@ -1,8 +1,16 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Zap, HardDrive, Lock, FileCheck2, ArrowUpRight } from "lucide-react";
+import {
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  HardDrive,
+  Lock,
+  FileCheck2,
+  ArrowUpRight,
+} from "lucide-react";
 import { getCurrentUser } from "@/lib/actions/user.actions";
-import type { LandingUser } from "./LandingNavbar";
+import type { LandingUser } from "@/types/landing";
 
 interface HeroSectionProps {
   user?: LandingUser | null;
@@ -19,7 +27,7 @@ export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
         className="absolute inset-0 pointer-events-none opacity-[0.035] -z-10"
         style={{
           backgroundImage: `radial-gradient(#0f172a 1px, transparent 1px)`,
-          backgroundSize: '24px 24px'
+          backgroundSize: "24px 24px",
         }}
       />
 
@@ -28,7 +36,6 @@ export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto">
-
           {/* Main Headline */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight font-poppins leading-[1.12]">
             Everything you keep,{" "}
@@ -39,7 +46,9 @@ export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
 
           {/* Subtitle */}
           <p className="mt-6 text-lg sm:text-xl text-slate-600 leading-relaxed max-w-2xl mx-auto font-normal">
-            Cloudence is a focused, clutter-free file repository for documents, imagery, and 4K media. Built for speed, disciplined organization, and frictionless sharing.
+            Cloudence is a focused, clutter-free file repository for documents,
+            imagery, and 4K media. Built for speed, disciplined organization,
+            and frictionless sharing.
           </p>
 
           {/* Call to Actions */}
@@ -48,7 +57,9 @@ export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
               href={isAuthenticated ? "/dashboard" : "/sign-up"}
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-xl shadow-md shadow-teal-700/20 hover:shadow-teal-700/30 transition-all hover:translate-y-[-1px] group"
             >
-              <span>{isAuthenticated ? "Go to Workspace" : "Create Free Account"}</span>
+              <span>
+                {isAuthenticated ? "Go to Workspace" : "Create Free Account"}
+              </span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
             <a
@@ -67,8 +78,12 @@ export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
                 <Zap className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-900">Instant Search</p>
-                <p className="text-[11px] text-slate-500">Debounced &lt;50ms query</p>
+                <p className="text-xs font-bold text-slate-900">
+                  Instant Search
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Debounced &lt;50ms query
+                </p>
               </div>
             </div>
 
@@ -77,8 +92,12 @@ export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
                 <HardDrive className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-900">50MB Direct Uploads</p>
-                <p className="text-[11px] text-slate-500">Fast multi-part chunks</p>
+                <p className="text-xs font-bold text-slate-900">
+                  50MB Direct Uploads
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  Fast multi-part chunks
+                </p>
               </div>
             </div>
 
@@ -87,8 +106,12 @@ export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
                 <Lock className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-900">OTP Auth Protection</p>
-                <p className="text-[11px] text-slate-500">SSO Unified Identity</p>
+                <p className="text-xs font-bold text-slate-900">
+                  OTP Auth Protection
+                </p>
+                <p className="text-[11px] text-slate-500">
+                  SSO Unified Identity
+                </p>
               </div>
             </div>
 
@@ -97,7 +120,9 @@ export async function HeroSection({ user: propUser }: HeroSectionProps = {}) {
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-xs font-bold text-slate-900">Zero Ad-Trackers</p>
+                <p className="text-xs font-bold text-slate-900">
+                  Zero Ad-Trackers
+                </p>
                 <p className="text-[11px] text-slate-500">100% private data</p>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -27,7 +28,9 @@ export const metadata: Metadata = {
   description:
     "A clean, dependable cloud storage and sharing workspace for documents, images, and media. Engineered by Chefu Technologies with instant search and OTP security.",
   applicationName: "Cloudence",
-  authors: [{ name: "CHEFU TECHNOLOGIES (Pty) Ltd", url: "https://www.chefu.co.za" }],
+  authors: [
+    { name: "CHEFU TECHNOLOGIES (Pty) Ltd", url: "https://www.chefu.co.za" },
+  ],
   creator: "CHEFU TECHNOLOGIES (Pty) Ltd",
   publisher: "CHEFU TECHNOLOGIES (Pty) Ltd",
   keywords: [
@@ -39,9 +42,6 @@ export const metadata: Metadata = {
     "document management",
     "private cloud drive",
   ],
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -87,11 +87,6 @@ const webSiteSchema = {
   "@type": "WebSite",
   name: "Cloudence",
   url: "https://cloudence.chefu.co.za",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: "https://cloudence.chefu.co.za/documents?query={search_term_string}",
-    "query-input": "required name=search_term_string",
-  },
 };
 
 export default function RootLayout({
@@ -117,10 +112,10 @@ export default function RootLayout({
       </head>
       <body className={`${poppins.variable} font-poppins antialiased`}>
         {children}
+        <Toaster />
         <Analytics />
         <SpeedInsights />
       </body>
     </html>
   );
 }
-

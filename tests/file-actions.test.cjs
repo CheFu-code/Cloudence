@@ -24,6 +24,7 @@ function load(relative, mocks = {}) {
 const input = load('lib/file-input.ts');
 const files = load('lib/cloudence-file.ts');
 const queue = load('lib/upload-queue.ts');
+const validation = load('lib/upload-validation.ts', { '@/constants': { BLOCKED_EXTENSIONS: new Set(['exe', 'js']), MAX_FILE_SIZE: 50 * 1024 * 1024 } });
 const { UploadError } = load('lib/client-api.ts', { '@/lib/cloudence-file': files });
 const example = { isOwner: true, id: 'file-1', name: 'report.pdf', extension: 'pdf', users: ['alice@example.com', 'bob@example.com'] };
 
@@ -34,7 +35,7 @@ function actionHarness(overrides = {}) {
   const toasts = [];
   const element = (type, props, key) => ({ type, props, key });
   const ui = (names) => Object.fromEntries(names.map((name) => [name, name]));
-  const { default: Dropdown } = load('components/ActionDropdown.tsx', {
+  const adapters = {
     'react': { useState: (initial) => {
       const index = cursor++;
       if (!(index in slots)) slots[index] = initial;
@@ -52,7 +53,9 @@ function actionHarness(overrides = {}) {
     '@/hooks/use-toast': { useToast: () => ({ toast: (value) => toasts.push(value) }) },
     '@/lib/file-input': input,
     '@/lib/actions/file.actions': { updateFileUsers: async (value) => { updates.push(value); return files.normalizeFile(example); } },
-  });
+  };
+  adapters["@/hooks/use-file-actions"] = load("hooks/use-file-actions.ts", adapters);
+  const { default: Dropdown } = load("components/ActionDropdown.tsx", adapters);
   const file = files.normalizeFile({ ...example, ...overrides });
   const render = () => { cursor = 0; return Dropdown({ file }); };
   function find(node, predicate) {
@@ -279,7 +282,7 @@ function uploaderHarness(t) {
     if (!(index in slots)) slots[index] = initial;
     return index;
   };
-  const { default: Uploader } = load('components/FileUploader.tsx', {
+  const adapters = {
     'react': {
       useState: (initial) => {
         const index = slot(initial);
@@ -299,11 +302,14 @@ function uploaderHarness(t) {
     '@/lib/utils': { cn: (...values) => values.join(' '), getFileType: () => ({ type: 'document', extension: 'txt' }) },
     '@/hooks/use-toast': { useToast: () => ({ toast: (value) => toasts.push(value) }) },
     '@/lib/upload-queue': queue,
+    '@/lib/upload-validation': validation,
     '@/lib/client-api': { UploadError, uploadFile: (file, options) => new Promise((resolve, reject) => {
       uploads.push({ file, options, resolve, reject });
       options.signal.addEventListener('abort', () => reject(new DOMException('Canceled', 'AbortError')), { once: true });
     }) },
-  });
+  };
+  adapters["@/hooks/use-file-uploader"] = load("hooks/use-file-uploader.ts", adapters);
+  const { default: Uploader } = load("components/FileUploader.tsx", adapters);
   const render = () => { cursor = 0; return Uploader({}); };
   const nodes = (node) => {
     if (!node || typeof node !== 'object') return [];
@@ -338,14 +344,16 @@ test('logout navigates only after success and shows a red error toast on failure
   const navigations = [];
   let fail = true;
   let pending = false;
-  const { LogoutButton } = load('components/LogoutButton.tsx', {
+  const adapters = {
     'react': { useState: () => [pending, (value) => { pending = value; }] },
     'react/jsx-runtime': { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) },
     'next/image': 'Image',
     '@/components/ui/button': { Button: 'Button' },
     '@/hooks/use-toast': { useToast: () => ({ toast: (value) => toasts.push(value) }) },
     '@/lib/client-api': { signOutUser: async () => { if (fail) throw new Error('Sign-out unavailable'); } },
-  });
+  };
+  adapters["@/hooks/use-logout"] = load("hooks/use-logout.ts", adapters);
+  const { LogoutButton } = load("components/LogoutButton.tsx", adapters);
   const previous = global.window;
   global.window = { location: { assign: (url) => navigations.push(url) } };
   try {
@@ -407,4 +415,34 @@ test('a queued cancellation makes no request and a rate limit stops further uplo
   assert.equal(h.toasts[0].className, 'error-toast');
   assert.equal(h.revoked.length, 8);
   h.cleanup();
+});
+
+test('extracted upload validation preserves per-type size limits and blocked extensions', () => {
+  for (const [name, megabytes] of [['image.png', 20], ['notes.txt', 10], ['document.pdf', 25], ['vector.svg', 5], ['video.mp4', 50]]) {
+    assert.equal(validation.validateUploadFile({ name, size: megabytes * 1024 * 1024 }), null);
+    assert.match(validation.validateUploadFile({ name, size: megabytes * 1024 * 1024 + 1 }), /exceeds/);
+  }
+  assert.match(validation.validateUploadFile({ name: 'blocked.exe', size: 1 }), /blocked/);
+});
+
+test('file sorting stays local, handles numbered names, and preserves the input array', () => {
+  const { sortFiles } = load('lib/file-sort.ts');
+  const source = [{ name: 'file10.pdf', size: 10 }, { name: 'file2.pdf', size: 2 }];
+  assert.deepEqual(sortFiles(source, 'name-asc').map((file) => file.name), ['file2.pdf', 'file10.pdf']);
+  assert.deepEqual(sortFiles(source, 'size-desc').map((file) => file.size), [10, 2]);
+  assert.equal(source[0].name, 'file10.pdf');
+});
+
+test('search initializes from the URL without clearing an existing filter', async () => {
+  const queries = [];
+  const navigations = [];
+  const { useFileSearch } = load('hooks/use-file-search.ts', {
+    'react': { useState: (initial) => [initial, () => {}], useEffect: (callback) => callback() },
+    'next/navigation': { useSearchParams: () => new URLSearchParams('query=report'), usePathname: () => '/documents', useRouter: () => ({ push: (url) => navigations.push(url) }) },
+    'use-debounce': { useDebounce: (query) => [query] },
+    '@/lib/actions/file.actions': { getFiles: async (args) => { queries.push(args); return { documents: [] }; } },
+  });
+  assert.equal(useFileSearch().query, 'report');
+  assert.deepEqual(navigations, []);
+  assert.equal(queries[0].searchText, 'report');
 });

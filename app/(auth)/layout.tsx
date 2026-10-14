@@ -1,3 +1,11 @@
+import type { Metadata } from "next";
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
+};
 import React from "react";
 import Image from "next/image";
 
@@ -25,7 +33,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
       <section className="flex flex-1 flex-col items-center bg-white p-4 py-10 lg:justify-center lg:p-10 lg:py-0">
         <div className="mb-16 lg:hidden" />
-
 
         {children}
       </section>

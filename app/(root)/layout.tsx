@@ -4,7 +4,15 @@ import MobileNavigation from "@/components/MobileNavigation";
 import Header from "@/components/Header";
 import { getCurrentUser } from "@/lib/actions/user.actions";
 import { redirect } from "next/navigation";
-import { Toaster } from "@/components/ui/toaster";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
+};
 
 export const dynamic = "force-dynamic";
 
@@ -31,10 +39,7 @@ const Layout = async ({ children }: { children: React.ReactNode }) => {
           {children}
         </main>
       </section>
-
-      <Toaster />
     </div>
   );
-
 };
 export default Layout;
