@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-export const metadata: Metadata = {
-  robots: {
-    index: false,
-    follow: false,
-    googleBot: { index: false, follow: false },
-  },
-};
 import React from "react";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  robots: {
+    index: true,
+    follow: false,
+    googleBot: { index: true, follow: false },
+  },
+};
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
