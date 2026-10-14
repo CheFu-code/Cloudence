@@ -2,6 +2,7 @@
 export function normalizeFile(file: Record<string, unknown>): CloudenceFile {
   return {
     isOwner: file.isOwner === true,
+    folderId: typeof file.folderId === "string" ? file.folderId : null,
     $id: String(file.id ?? ""),
     $createdAt: String(file.createdAt ?? ""),
     $updatedAt: String(file.updatedAt ?? ""),

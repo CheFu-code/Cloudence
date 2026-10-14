@@ -18,6 +18,9 @@ declare interface GetFilesProps {
   searchText?: string;
   sort?: string;
   limit?: number;
+  section?: string;
+  folderId?: string;
+  offset?: number;
 }
 declare interface RenameFileProps {
   fileId: string;
@@ -64,6 +67,7 @@ declare interface ThumbnailProps {
 }
 
 declare interface CloudenceFile {
+  folderId?: string | null;
   isOwner: boolean;
   $id: string;
   $createdAt: string;
@@ -82,4 +86,11 @@ declare interface ShareInputProps {
   file: CloudenceFile;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemove: (email: string) => void;
+}
+
+declare interface CloudenceFolder {
+  id: string;
+  name: string;
+  section: "documents" | "images" | "media" | "others";
+  createdAt: string;
 }

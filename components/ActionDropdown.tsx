@@ -25,7 +25,7 @@ import { FileDetails, ShareInput } from "@/components/ActionsModalContent";
 import { useFileActions } from "@/hooks/use-file-actions";
 import { localDateTime } from "@/lib/file-input";
 
-const ActionDropdown = ({ file, initialOpen = false }: { file: CloudenceFile; initialOpen?: boolean }) => {
+const ActionDropdown = ({ file, folders, initialOpen = false }: { file: CloudenceFile; folders?: CloudenceFolder[]; initialOpen?: boolean }) => {
   const {
     isModalOpen,
     setIsModalOpen,
@@ -43,6 +43,8 @@ const ActionDropdown = ({ file, initialOpen = false }: { file: CloudenceFile; in
     emailError,
     expiryError,
     canShare,
+    folderId,
+    setFolderId,
     closeAllModals,
     handleAction,
     handleRemoveUser,
@@ -71,6 +73,15 @@ const ActionDropdown = ({ file, initialOpen = false }: { file: CloudenceFile; in
             />
           )}
           {value === "details" && <FileDetails file={file} />}
+          {value === "move" && (
+            <label className="flex flex-col gap-2 text-sm">
+              Destination
+              <select className="rounded-md border p-3" value={folderId} onChange={(event) => setFolderId(event.target.value)} disabled={isLoading}>
+                <option value="">Section root</option>
+                {folders?.map((folder) => <option key={folder.id} value={folder.id}>{folder.name}</option>)}
+              </select>
+            </label>
+          )}
           {value === "share" && (
             <ShareInput
               file={file}
@@ -90,7 +101,7 @@ const ActionDropdown = ({ file, initialOpen = false }: { file: CloudenceFile; in
             </p>
           )}
         </DialogHeader>
-        {["rename", "delete", "share"].includes(value) && (
+        {["rename", "delete", "share", "move"].includes(value) && (
           <DialogFooter className="flex flex-col gap-3 md:flex-row">
             <Button
               disabled={isLoading}
@@ -137,7 +148,7 @@ const ActionDropdown = ({ file, initialOpen = false }: { file: CloudenceFile; in
         if (!open) closeAllModals();
       }}
     >
-      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+      <DropdownMenu modal={false} open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger disabled={isLoading} className="shad-no-focus">
           <Image
             src="/assets/icons/dots.svg"
@@ -151,10 +162,10 @@ const ActionDropdown = ({ file, initialOpen = false }: { file: CloudenceFile; in
             {file.name}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {actionsDropdownItems
+          {[...actionsDropdownItems, ...(folders ? [{ value: "move", label: "Move to folder", icon: "/assets/icons/file-other.svg" }] : [])]
             .filter(
               (item) =>
-                file.isOwner || ["details", "download"].includes(item.value),
+                file.isOwner || ["details", "download", "move"].includes(item.value),
             )
             .map((actionItem) => (
               <DropdownMenuItem
@@ -168,7 +179,7 @@ const ActionDropdown = ({ file, initialOpen = false }: { file: CloudenceFile; in
                   }
 
                   if (
-                    ["rename", "share", "delete", "details"].includes(
+                    ["rename", "share", "delete", "details", "move"].includes(
                       actionItem.value,
                     )
                   ) {

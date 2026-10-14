@@ -7,9 +7,11 @@ import { ViewType } from "./ViewToggle";
 interface CardProps {
     file: CloudenceFile;
     view?: ViewType;
+    folders?: CloudenceFolder[];
 }
 
-const Card = ({ file, view = "grid" }: CardProps) => {
+const Card = ({ file, view = "grid", folders }: CardProps) => {
+    const folderName = folders?.find((folder) => folder.id === file.folderId)?.name;
     const ownerInitial = file.owner.fullName ? file.owner.fullName.charAt(0).toUpperCase() : "U";
 
     return (
@@ -41,7 +43,7 @@ const Card = ({ file, view = "grid" }: CardProps) => {
                         </a>
 
                         <div className="flex flex-col items-end justify-between h-20">
-                            <ActionDropdown file={file} />
+                            <ActionDropdown file={file} folders={folders} />
                             <p className="body-1">{convertFileSize(file.size)}</p>
                         </div>
                     </div>
@@ -53,6 +55,7 @@ const Card = ({ file, view = "grid" }: CardProps) => {
                         className="file-card-details block group"
                     >
                         <p className="subtitle-2 line-clamp-1 group-hover:text-brand transition-colors">{file.name}</p>
+                        {folderName && <p className="caption truncate text-teal-700">Folder: {folderName}</p>}
                         <FormattedDateTime
                             date={file.$createdAt}
                             className="body-2 text-light-100"
@@ -107,7 +110,7 @@ const Card = ({ file, view = "grid" }: CardProps) => {
 
                     {/* 5. Actions Column (Far right) */}
                     <div className="col-span-1 flex justify-end">
-                        <ActionDropdown file={file} />
+                        <ActionDropdown file={file} folders={folders} />
                     </div>
                 </>
             )}

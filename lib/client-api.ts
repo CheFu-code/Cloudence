@@ -41,11 +41,13 @@ export function uploadFile(
   options: {
     signal?: AbortSignal;
     onProgress?: (percent: number) => void;
+    folderId?: string;
   } = {},
 ): Promise<CloudenceFile> {
   const body = new FormData();
   body.append("file", file, file.name);
   body.append("name", file.name);
+  if (options.folderId) body.append("folderId", options.folderId);
   return new Promise((resolve, reject) => {
     if (options.signal?.aborted) {
       reject(new DOMException("Upload canceled.", "AbortError"));

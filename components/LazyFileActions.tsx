@@ -13,9 +13,9 @@ const FileActions = dynamic(() => import("./ActionDropdown"), {
   ),
 });
 
-export default function LazyFileActions({ file }: { file: CloudenceFile }) {
+export default function LazyFileActions({ file, folders }: { file: CloudenceFile; folders?: CloudenceFolder[] }) {
   const [activated, setActivated] = useState(false);
-  if (activated) return <FileActions file={file} initialOpen />;
+  if (activated) return <FileActions file={file} folders={folders} initialOpen />;
   return (
     <button
       type="button" aria-label={`Actions for ${file.name}`} aria-haspopup="menu" aria-expanded={false}

@@ -33,7 +33,7 @@ async function request<T>(
         | null;
 
     if (!response.ok) {
-        throw new Error(data?.message || data?.error || "Cloudence file request failed.");
+        throw Object.assign(new Error(data?.message || data?.error || "Cloudence file request failed."), { status: response.status });
     }
 
     return data as T;
@@ -56,6 +56,9 @@ export async function getFiles({
     searchText = "",
     sort = "",
     limit,
+    section,
+    folderId,
+    offset,
 }: GetFilesProps) {
     const params = new URLSearchParams();
     if (types.length === 1) {
@@ -65,16 +68,23 @@ export async function getFiles({
     }
     if (searchText) params.set("search", searchText);
     if (limit) params.set("limit", String(limit));
+    if (section) params.set("section", section);
+    if (folderId) params.set("folder", folderId);
+    if (offset) params.set("offset", String(offset));
     params.set("sort", sort || "$createdAt-desc");
 
     const result = await request<{
         total: number;
         documents: Record<string, unknown>[];
+        folders?: CloudenceFolder[];
+        nextOffset?: number;
     }>(`/cloudence/files?${params.toString()}`);
 
     return {
         total: result.total,
         documents: result.documents.map(normalizeFile),
+        folders: result.folders || [],
+        nextOffset: result.nextOffset,
     };
 }
 
@@ -153,5 +163,25 @@ export async function getFileDownloadUrl(fileId: string) {
         sha256?: string;
         size: number;
     }>(`/cloudence/files/${fileId}/download?json=true`);
+}
+
+export async function saveFolder(input: { section: string; name?: string; id?: string; remove?: boolean; refresh?: boolean }) {
+    if (!["documents", "images", "media", "others"].includes(input.section)) return { error: "Choose a valid section." };
+    const result = await safeRequest<{ status: string }>(`/cloudence/files/folders${input.id ? `/${encodeURIComponent(input.id)}` : ""}`, {
+        method: input.remove ? "DELETE" : input.id ? "PATCH" : "POST",
+        ...(!input.remove ? { body: JSON.stringify({ section: input.section, name: input.name }) } : {}),
+    });
+    if ("error" in result) return result;
+    if (input.refresh !== false) revalidatePath(`/${input.section}`);
+    return result;
+}
+
+export async function moveFileToFolder({ fileId, folderId, path }: { fileId: string; folderId: string | null; path: string }) {
+    const result = await safeRequest<{ status: string }>(`/cloudence/files/${encodeURIComponent(fileId)}/folder`, {
+        method: "PATCH", body: JSON.stringify({ folderId }),
+    });
+    if ("error" in result) return result;
+    revalidatePath(path);
+    return result;
 }
 

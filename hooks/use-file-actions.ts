@@ -7,6 +7,7 @@ import {
   getFileDownloadUrl,
   renameFile,
   updateFileUsers,
+  moveFileToFolder,
 } from "@/lib/actions/file.actions";
 import {
   invalidEmails,
@@ -22,6 +23,7 @@ export function useFileActions(file: CloudenceFile, initialOpen = false) {
   const [isLoading, setIsLoading] = useState(false);
   const [emails, setEmails] = useState<string[]>([]);
   const [expiry, setExpiry] = useState(localDateTime(file.shareExpiresAt));
+  const [folderId, setFolderId] = useState(file.folderId || "");
   const invalid = invalidEmails(emails);
   const emailError = invalid.length
     ? `Check these email addresses: ${invalid.join(", ")}`
@@ -46,13 +48,14 @@ export function useFileActions(file: CloudenceFile, initialOpen = false) {
     setName(file.name);
     setEmails([]);
     setExpiry(localDateTime(file.shareExpiresAt));
+    setFolderId(file.folderId || "");
   };
 
   const handleAction = async () => {
     if (
       !action ||
       isLoading ||
-      !file.isOwner ||
+      (!file.isOwner && action.value !== "move") ||
       (action.value === "share" && !canShare)
     )
       return;
@@ -76,6 +79,7 @@ export function useFileActions(file: CloudenceFile, initialOpen = false) {
                 : "",
         }),
       delete: () => deleteFile({ fileId: file.$id, path }),
+      move: () => moveFileToFolder({ fileId: file.$id, folderId: folderId || null, path }),
     };
 
     try {
@@ -205,6 +209,8 @@ export function useFileActions(file: CloudenceFile, initialOpen = false) {
     emailError,
     expiryError,
     canShare,
+    folderId,
+    setFolderId,
     closeAllModals,
     handleAction,
     handleRemoveUser,

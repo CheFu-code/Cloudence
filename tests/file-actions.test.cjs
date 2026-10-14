@@ -104,12 +104,15 @@ function actionHarness(overrides = {}) {
     '@/components/ActionsModalContent': ui(['FileDetails', 'ShareInput']),
     '@/hooks/use-toast': { useToast: () => ({ toast: (value) => toasts.push(value) }) },
     '@/lib/file-input': input,
-    '@/lib/actions/file.actions': { updateFileUsers: async (value) => { updates.push(value); return files.normalizeFile(example); } },
+    '@/lib/actions/file.actions': {
+      updateFileUsers: async (value) => { updates.push(value); return files.normalizeFile(example); },
+      moveFileToFolder: async (value) => { updates.push(value); return { status: 'success' }; },
+    },
   };
   adapters["@/hooks/use-file-actions"] = load("hooks/use-file-actions.ts", adapters);
   const { default: Dropdown } = load("components/ActionDropdown.tsx", adapters);
   const file = files.normalizeFile({ ...example, ...overrides });
-  const render = () => { cursor = 0; return Dropdown({ file }); };
+  const render = () => { cursor = 0; return Dropdown({ file, folders: overrides.folders }); };
   function find(node, predicate) {
     if (!node || typeof node !== 'object') return undefined;
     if (Array.isArray(node)) return node.map((child) => find(child, predicate)).find(Boolean);
@@ -128,6 +131,47 @@ test('Share adds normalized recipients while keeping existing access', async () 
   assert.deepEqual(h.updates[0].addEmails, ['carol@example.com', 'alice@example.com']);
   assert.equal(h.updates[0].emails, undefined);
   assert.equal(h.updates[0].shareExpiresAt, undefined);
+});
+
+test('shared recipients can organize files in personal folders and move them back to the section root', async () => {
+  const folder = { id: 'folder-1', name: 'Work', section: 'documents' };
+  const h = actionHarness({ isOwner: false, folders: [folder] });
+  assert.equal(h.find(h.render(), (node) => node.type === 'DropdownMenu').props.modal, false, 'The menu must not leave a competing pointer lock when its action dialog opens');
+  h.find(h.render(), (node) => node.type === 'DropdownMenuItem' && node.key === 'move').props.onClick();
+  const destination = h.find(h.render(), (node) => node.type === 'select');
+  destination.props.onChange({ target: { value: folder.id } });
+  await h.find(h.render(), (node) => node.props?.className === 'modal-submit-button').props.onClick();
+  assert.equal(h.updates[0].folderId, folder.id);
+  const root = actionHarness({ isOwner: false, folderId: folder.id, folders: [folder] });
+  root.find(root.render(), (node) => node.type === 'DropdownMenuItem' && node.key === 'move').props.onClick();
+  root.find(root.render(), (node) => node.type === 'select').props.onChange({ target: { value: '' } });
+  await root.find(root.render(), (node) => node.props?.className === 'modal-submit-button').props.onClick();
+  assert.equal(root.updates[0].folderId, null);
+});
+
+test('folder actions send scoped endpoints and refresh only after successful changes', async (t) => {
+  const requests = [];
+  const refreshed = [];
+  let fail = false;
+  t.mock.method(global, 'fetch', async (url, init) => {
+    requests.push({ url, ...init });
+    return new Response(JSON.stringify(fail ? { message: 'Folder already exists' } : { status: 'success' }), { status: fail ? 400 : 200 });
+  });
+  const actions = load('lib/actions/file.actions.ts', {
+    'next/cache': { revalidatePath: (path) => refreshed.push(path) },
+    '@/lib/session-headers': { sessionHeaders: async () => ({ Origin: 'https://cloudence.chefu.co.za' }) },
+    '@/lib/cloudence-file': files, '@/lib/file-input': input,
+  });
+  await actions.saveFolder({ section: 'documents', name: 'Work' });
+  assert.equal(requests[0].method, 'POST');
+  assert.match(requests[0].url, /\/cloudence\/files\/folders$/);
+  assert.deepEqual(JSON.parse(requests[0].body), { section: 'documents', name: 'Work' });
+  await actions.saveFolder({ section: 'documents', id: 'folder-1', remove: true, refresh: false });
+  assert.equal(requests[1].method, 'DELETE');
+  assert.deepEqual(refreshed, ['/documents']);
+  fail = true;
+  assert.equal((await actions.moveFileToFolder({ fileId: 'file-1', folderId: null, path: '/documents' })).error, 'Folder already exists');
+  assert.deepEqual(refreshed, ['/documents']);
 });
 
 test('removing one recipient preserves everyone else even with an empty input', async () => {
@@ -268,13 +312,14 @@ test('uploads larger than the action limit go straight to the API as credentiale
   }));
   const client = load('lib/client-api.ts', { '@/lib/cloudence-file': files });
   const file = new File([new Uint8Array(6 * 1024 * 1024)], 'large.mp4', { type: 'video/mp4' });
-  const result = await client.uploadFile(file);
+  const result = await client.uploadFile(file, { folderId: 'folder-1' });
   const xhr = requests[0];
   assert.match(xhr.url, /\/cloudence\/files$/);
   assert.equal(xhr.withCredentials, true);
   assert.equal(xhr.method, 'POST');
   assert.equal(xhr.body.get('file').size, file.size);
   assert.equal(xhr.body.get('name'), file.name);
+  assert.equal(xhr.body.get('folderId'), 'folder-1');
   assert.ok(receivedBytes > file.size);
   assert.match(contentType, /^multipart\/form-data; boundary=/);
   assert.equal(new Headers(xhr.headers).has('content-type'), false);

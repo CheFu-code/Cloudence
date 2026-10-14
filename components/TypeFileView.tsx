@@ -6,12 +6,17 @@ import Sort from "@/components/Sort";
 import Card from "@/components/Card";
 import { ViewToggle } from "@/components/ViewToggle";
 import { cn, convertFileSize } from "@/lib/utils";
+import FolderBrowser from "@/components/FolderBrowser";
 
 interface TypeFileViewProps {
   type: string;
   files: CloudenceFile[];
   totalSize: number;
   initialSort?: string;
+  folders?: CloudenceFolder[];
+  folderId?: string;
+  nextOffset?: number;
+  offset?: number;
 }
 
 export default function TypeFileView({
@@ -19,6 +24,10 @@ export default function TypeFileView({
   files,
   totalSize,
   initialSort = "$createdAt-desc",
+  folders = [],
+  folderId,
+  nextOffset,
+  offset = 0,
 }: TypeFileViewProps) {
   const {
     currentSort,
@@ -50,6 +59,9 @@ export default function TypeFileView({
         </div>
       </section>
 
+      <FolderBrowser section={type} folders={folders} folderId={folderId} offset={offset} nextOffset={nextOffset} />
+      {!folderId && <h2 className="mt-6 text-sm font-medium text-slate-600">All files</h2>}
+
       {sortedFiles.length > 0 ? (
         <section
           className={cn(
@@ -60,11 +72,11 @@ export default function TypeFileView({
           )}
         >
           {sortedFiles.map((file: CloudenceFile) => (
-            <Card key={file.$id} file={file} view={currentView} />
+            <Card key={file.$id} file={file} view={currentView} folders={folders} />
           ))}
         </section>
       ) : (
-        <p className="empty-list">No files uploaded</p>
+        <p className="empty-list">{folderId ? "This folder has no files on this page. Move files here or upload files from this section." : "No files in this section."}</p>
       )}
     </>
   );

@@ -50,6 +50,9 @@ export function useFileUploader() {
         return;
       }
       busy.current = true;
+      // Capture the destination once so navigation during a batch cannot move later uploads.
+      const folderId = typeof window !== "undefined" && window.location?.href
+        ? new URL(window.location.href).searchParams.get("folder") || undefined : undefined;
       setIsUploading(true);
       const entries = acceptedFiles.map((file) => ({
         id: crypto.randomUUID(),
@@ -91,6 +94,7 @@ export function useFileUploader() {
                 ),
               );
               await uploadFile(file, {
+                folderId,
                 signal: entry.controller.signal,
                 onProgress: (progress) =>
                   setFiles((previous) =>
