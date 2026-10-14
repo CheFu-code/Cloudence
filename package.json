@@ -5,6 +5,7 @@
   "scripts": {
     "test:file-actions": "node --test tests/file-actions.test.cjs",
     "test:seo": "node --test tests/seo.test.cjs",
+    "test:folders:browser": "node --test tests/folders.browser.test.cjs",
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",

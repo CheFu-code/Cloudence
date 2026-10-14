@@ -19,12 +19,6 @@ export function useFileSearch() {
       if (debouncedQuery.length === 0) {
         setResults([]);
         setOpen(false);
-        if (searchParams.has("query")) {
-          const params = new URLSearchParams(searchParams.toString());
-          params.delete("query");
-          const remaining = params.toString();
-          router.push(remaining ? `${path}?${remaining}` : path);
-        }
         return;
       }
 
@@ -50,6 +44,17 @@ export function useFileSearch() {
     return () => {
       isCurrent = false;
     };
+  }, [debouncedQuery, path]);
+
+  // URL-only filters and sort changes must not refetch the same search results.
+  useEffect(() => {
+    if (debouncedQuery.length === 0 && searchParams.has("query")) {
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete("query");
+      params.delete("offset");
+      const remaining = params.toString();
+      router.push(remaining ? `${path}?${remaining}` : path);
+    }
   }, [debouncedQuery, path, router, searchParams]);
 
   useEffect(() => {

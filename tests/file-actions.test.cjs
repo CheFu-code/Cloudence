@@ -23,6 +23,7 @@ function load(relative, mocks = {}) {
 
 const input = load('lib/file-input.ts');
 const files = load('lib/cloudence-file.ts');
+const folderView = load('lib/folder-view.ts');
 const queue = load('lib/upload-queue.ts');
 const validation = load('lib/upload-validation.ts', { '@/constants': { BLOCKED_EXTENSIONS: new Set(['exe', 'js']), MAX_FILE_SIZE: 50 * 1024 * 1024 } });
 const { UploadError } = load('lib/client-api.ts', { '@/lib/cloudence-file': files });
@@ -172,6 +173,52 @@ test('folder actions send scoped endpoints and refresh only after successful cha
   fail = true;
   assert.equal((await actions.moveFileToFolder({ fileId: 'file-1', folderId: null, path: '/documents' })).error, 'Folder already exists');
   assert.deepEqual(refreshed, ['/documents']);
+});
+
+test('folder search and sorting stay local and pagination preserves file search and sort', () => {
+  const source = [{ id: 'b', name: 'Work10', createdAt: '2026-10-02' }, { id: 'a', name: 'Work2', createdAt: '2026-10-01' }, { id: 'c', name: 'Photos', createdAt: '2026-10-03' }];
+  assert.deepEqual(folderView.visibleFolders(source, ' WORK ', 'name-asc').map((folder) => folder.id), ['a', 'b']);
+  assert.deepEqual(folderView.visibleFolders(source, '', 'newest').map((folder) => folder.id), ['c', 'b', 'a']);
+  assert.deepEqual(source.map((folder) => folder.id), ['b', 'a', 'c']);
+  const href = folderView.folderHref('documents', 'query=invoice&sort=name-asc&folder=old&offset=200&filter=unfiled', 'new folder', 100);
+  const query = new URL(href, 'https://example.com').searchParams;
+  assert.equal(query.get('query'), 'invoice');
+  assert.equal(query.get('sort'), 'name-asc');
+  assert.equal(query.get('folder'), 'new folder');
+  assert.equal(query.get('offset'), '100');
+  assert.equal(query.has('filter'), false);
+  assert.equal(new URL(folderView.folderHref('documents', query.toString()), 'https://example.com').searchParams.has('folder'), false);
+});
+
+test('bulk selection caps at 50 and makes one move request for visible files', async () => {
+  const sample = Array.from({ length: 60 }, (_, index) => ({ ...example, $id: `file-${index}` }));
+  const slots = [];
+  let cursor = 0;
+  const requests = [];
+  const toasts = [];
+  const { useFileSelection } = load('hooks/use-file-selection.ts', {
+    react: { useState: (value) => {
+      const position = cursor++;
+      if (!(position in slots)) slots[position] = value;
+      return [slots[position], (next) => { slots[position] = typeof next === 'function' ? next(slots[position]) : next; }];
+    }, useEffect: () => {} },
+    'next/navigation': { usePathname: () => '/documents' },
+    '@/lib/folder-view': folderView,
+    '@/hooks/use-toast': { useToast: () => ({ toast: (toast) => toasts.push(toast) }) },
+    '@/lib/actions/file.actions': { moveFilesToFolder: async (input) => { requests.push(input); return { moved: input.fileIds.length }; } },
+  });
+  const render = (visible = sample) => { cursor = 0; return useFileSelection(visible, 'root'); };
+  render().selectPage();
+  assert.equal(render().selected.length, 50);
+  render().toggle('file-59');
+  assert.equal(render().selected.length, 50);
+  render().setDestination('folder-1');
+  await render(sample.slice(0, 3)).move();
+  assert.equal(requests.length, 1);
+  assert.deepEqual(requests[0].fileIds, ['file-0', 'file-1', 'file-2']);
+  assert.equal(requests[0].folderId, 'folder-1');
+  assert.equal(render().selected.length, 0);
+  assert.equal(toasts[0].title, '3 files moved');
 });
 
 test('removing one recipient preserves everyone else even with an empty input', async () => {
@@ -542,6 +589,67 @@ test('search initializes from the URL without clearing an existing filter', asyn
   assert.equal(useFileSearch().query, 'report');
   assert.deepEqual(navigations, []);
   assert.equal(queries[0].searchText, 'report');
+});
+
+test('changing local file filters or sort does not refetch an unchanged search query', () => {
+  let params = new URLSearchParams('query=report');
+  const dependencies = [];
+  let effectIndex = 0;
+  const requests = [];
+  const router = { push: () => { throw new Error('Local filtering must not navigate'); } };
+  const { useFileSearch } = load('hooks/use-file-search.ts', {
+    react: { useState: (initial) => [initial, () => {}], useEffect: (callback, next) => {
+      const index = effectIndex++;
+      if (!dependencies[index] || next.some((value, position) => value !== dependencies[index][position])) callback();
+      dependencies[index] = next;
+    } },
+    'next/navigation': { useSearchParams: () => params, usePathname: () => '/documents', useRouter: () => router },
+    'use-debounce': { useDebounce: (query) => [query] },
+    '@/lib/actions/file.actions': { getFiles: async (input) => { requests.push(input); return { documents: [] }; } },
+  });
+  useFileSearch();
+  params = new URLSearchParams('query=report&filter=unfiled&sort=name-asc');
+  effectIndex = 0;
+  useFileSearch();
+  assert.equal(requests.length, 1);
+});
+
+test('folder placement labels appear in grid and list views, including Unfiled', () => {
+  const jsx = (type, props) => ({ type, props });
+  const { default: Card } = load('components/Card.tsx', {
+    'react/jsx-runtime': { jsx, jsxs: jsx },
+    '@/components/Thumbnail': 'Thumbnail', '@/components/FormattedDateTime': 'Date',
+    '@/components/LazyFileActions': 'Actions', '@/lib/utils': { cn: (...values) => values.join(' '), convertFileSize: () => '123 bytes' },
+  });
+  const text = (node) => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join(' ') : node?.props ? text(node.props.children) : '';
+  for (const view of ['grid', 'list']) {
+    assert.match(text(Card({ file: files.normalizeFile({ ...example, folderId: 'folder-1' }), view, folders: [{ id: 'folder-1', name: 'Work' }] })), /Folder: Work/);
+    assert.match(text(Card({ file: files.normalizeFile(example), view, folders: [] })), /Unfiled/);
+  }
+});
+
+test('the section hides filed files and calculates totals and selection from the visible list', () => {
+  const jsx = (type, props) => ({ type, props });
+  let selectionFiles;
+  const sample = [
+    { ...files.normalizeFile(example), $id: 'loose', folderId: null, size: 123 },
+    { ...files.normalizeFile(example), $id: 'filed', folderId: 'folder-1', size: 456 },
+  ];
+  const { default: View } = load('components/TypeFileView.tsx', {
+    react: {}, 'react/jsx-runtime': { jsx, jsxs: jsx },
+    '@/hooks/use-file-view': { useFileView: () => ({ sortedFiles: sample, currentSort: 'name-asc', currentView: 'grid' }) },
+    '@/hooks/use-file-selection': { useFileSelection: (items) => { selectionFiles = items; return { selected: [], busy: false }; } },
+    '@/lib/folder-view': folderView,
+    '@/components/Sort': 'Sort', '@/components/Card': 'Card', '@/components/ViewToggle': { ViewToggle: 'Toggle' },
+    '@/components/FolderBrowser': 'Folders', '@/lib/utils': { cn: (...values) => values.join(' '), convertFileSize: (bytes) => `${bytes} bytes` },
+  });
+  const text = (node) => typeof node === 'string' ? node : Array.isArray(node) ? node.map(text).join(' ') : node?.props ? text(node.props.children) : '';
+  const root = View({ type: 'documents', files: sample, totalSize: 579 });
+  assert.deepEqual(selectionFiles.map((file) => file.$id), ['loose']);
+  assert.match(text(root), /123 bytes/);
+  assert.doesNotMatch(text(root), /579 bytes/);
+  View({ type: 'documents', files: sample, totalSize: 579, folderId: 'folder-1' });
+  assert.deepEqual(selectionFiles.map((file) => file.$id), ['filed']);
 });
 
 test('protected previews bypass the shared image optimizer and never reuse old storage URLs', () => {

@@ -149,10 +149,10 @@ const ActionDropdown = ({ file, folders, initialOpen = false }: { file: Cloudenc
       }}
     >
       <DropdownMenu modal={false} open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-        <DropdownMenuTrigger disabled={isLoading} className="shad-no-focus">
+        <DropdownMenuTrigger disabled={isLoading} className="shad-no-focus" aria-label={`Actions for ${file.name}`}>
           <Image
             src="/assets/icons/dots.svg"
-            alt="dots"
+            alt=""
             width={34}
             height={34}
           />
@@ -173,6 +173,7 @@ const ActionDropdown = ({ file, folders, initialOpen = false }: { file: Cloudenc
                 className="shad-dropdown-item"
                 onClick={() => {
                   setAction(actionItem);
+                  if (actionItem.value === "move") setFolderId(file.folderId || "");
                   if (actionItem.value === "share") {
                     setEmails([]);
                     setExpiry(localDateTime(file.shareExpiresAt));

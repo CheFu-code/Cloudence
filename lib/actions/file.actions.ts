@@ -185,3 +185,20 @@ export async function moveFileToFolder({ fileId, folderId, path }: { fileId: str
     return result;
 }
 
+export async function moveFilesToFolder({ fileIds, folderId, path }: { fileIds: string[]; folderId: string | null; path: string }) {
+    if (!fileIds.length || fileIds.length > 50) return { error: "Select between 1 and 50 files." };
+    const result = await safeRequest<{ status: string; moved: number }>("/cloudence/files/folders/move", {
+        method: "POST", body: JSON.stringify({ fileIds, folderId }),
+    });
+    if ("error" in result) return result;
+    revalidatePath(path);
+    return result;
+}
+
+export async function cleanupFolderPlacements(path: string) {
+    const result = await safeRequest<{ status: string; cleaned: number; checked: number; remaining: number }>("/cloudence/files/folders/cleanup", { method: "POST" });
+    if ("error" in result) return result;
+    revalidatePath(path);
+    return result;
+}
+

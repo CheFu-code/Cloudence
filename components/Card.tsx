@@ -8,9 +8,10 @@ interface CardProps {
     file: CloudenceFile;
     view?: ViewType;
     folders?: CloudenceFolder[];
+    selection?: React.ReactNode;
 }
 
-const Card = ({ file, view = "grid", folders }: CardProps) => {
+const Card = ({ file, view = "grid", folders, selection }: CardProps) => {
     const folderName = folders?.find((folder) => folder.id === file.folderId)?.name;
     const ownerInitial = file.owner.fullName ? file.owner.fullName.charAt(0).toUpperCase() : "U";
 
@@ -26,6 +27,7 @@ const Card = ({ file, view = "grid", folders }: CardProps) => {
             {view === "grid" && (
                 <>
                     <div className="flex justify-between items-start">
+                        {selection}
                         <a
                             href={file.url}
                             target="_blank"
@@ -55,7 +57,7 @@ const Card = ({ file, view = "grid", folders }: CardProps) => {
                         className="file-card-details block group"
                     >
                         <p className="subtitle-2 line-clamp-1 group-hover:text-brand transition-colors">{file.name}</p>
-                        {folderName && <p className="caption truncate text-teal-700">Folder: {folderName}</p>}
+                        {folders && <p className="caption truncate text-teal-700">{folderName ? `Folder: ${folderName}` : "Unfiled"}</p>}
                         <FormattedDateTime
                             date={file.$createdAt}
                             className="body-2 text-light-100"
@@ -70,11 +72,12 @@ const Card = ({ file, view = "grid", folders }: CardProps) => {
             {view === "list" && (
                 <>
                     {/* 1. Name Column */}
+                    {selection && <div className="col-span-1 flex items-center">{selection}</div>}
                     <a
                         href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="col-span-3 sm:col-span-5 lg:col-span-4 flex items-center gap-3 overflow-hidden pr-2 group"
+                        className={cn("flex items-center gap-3 overflow-hidden pr-2 group", selection ? "col-span-2 sm:col-span-4 lg:col-span-3" : "col-span-3 sm:col-span-5 lg:col-span-4")}
                     >
                         <Thumbnail
                             type={file.type}
@@ -83,9 +86,10 @@ const Card = ({ file, view = "grid", folders }: CardProps) => {
                             className="!size-8 shrink-0 bg-transparent"
                             imageClassName="!size-5"
                         />
-                        <p className="subtitle-2 truncate text-dark-200 font-medium group-hover:text-brand transition-colors">
-                            {file.name}
-                        </p>
+                        <div className="min-w-0">
+                            <p className="subtitle-2 truncate text-dark-200 font-medium group-hover:text-brand transition-colors">{file.name}</p>
+                            {folders && <p className="caption truncate text-teal-700">{folderName ? `Folder: ${folderName}` : "Unfiled"}</p>}
+                        </div>
                     </a>
 
                     {/* 2. Date Column (Hidden on mobile) */}
