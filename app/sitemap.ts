@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://cloudence.chefu.co.za";
-  const lastModified = new Date("2026-09-22");
+  const lastModified = new Date("2026-11-20");
 
   return [
     {

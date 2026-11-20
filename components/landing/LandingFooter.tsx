@@ -104,10 +104,10 @@ export function LandingFooter() {
                 </Link>
               </li>
               <li>
-                <span className="text-slate-500">Zero-Tracking Guarantee</span>
+                <span className="text-slate-500">Privacy-first file access</span>
               </li>
               <li>
-                <span className="text-slate-500">Encrypted Transit (TLS 1.3)</span>
+                <span className="text-slate-500">Account-protected file delivery</span>
               </li>
             </ul>
           </div>
